@@ -1,9 +1,12 @@
 ---
-title: "Energy technology analysis"
+title: "Analysis of the trends in RD&D spending by energy technology (1974-2022)"
 format: html
+author: "Disem Sula, Maximilien de La Ruelle"
 editor: visual
 ---
 ```{r message=FALSE}
+#| echo: false
+#| message: false
 here::i_am("R%D_project.Rproj")
 library(here)
 library(ggplot2)
@@ -14,19 +17,32 @@ library(stringr)
 ```
 
 ```{r}
+#| message: false
+#| echo: false
 df<-vroom(here("IEA_Energy_RDD_selected_dataproject.csv"))
 gdp<-vroom(here("WorldBank_GDP_data.csv"))
 
 ```
-## Link to the github repository of this project
-https://github.com/max8471/datam_project
+### Link to the github repository of this project
+[Github repository](https://github.com/max8471/datam_project)
 
-## Sources for the data
+### Sources for the data
 For the energy RD&D spending data :
 The data set is available [here](https://www.iea.org/data-and-statistics/data-product/energy-technology-rd-and-d-budget-database-2#overview) and download it by clicking on "selected data". 
 Delete every sheet of the excel file except "public spending", and delete the first line of this sheet in order to have the years on the top row, then save it as a .csv file.
 
 For the GDP data : 
-Go to this link [GDP]((https://databank.worldbank.org/reports.aspx?source=2&series=NY.GDP.MKTP.CD&country#) and select years 1974-2022, then download the data as a .csv file.
+Go to this [link](https://databank.worldbank.org/reports.aspx?source=2&series=NY.GDP.MKTP.CD&country#) and select years 1974-2022, then download the data as a .csv file.
 
+### Description of the sources
+
+#### International Energy agency
+The International Energy Agency (IEA) is a pivotal organization founded in 1974 within the framework of the Organization for Economic Co-operation and Development (OECD). Comprising major energy consumers and producers globally, the IEA serves to enhance energy security, foster economic growth, and promote environmental sustainability. Its primary functions encompass collecting and analyzing energy data, conducting in-depth studies, and offering policy advice to member countries. The IEA also plays a critical role in coordinating emergency responses during energy supply disruptions.
+
+Key to its mission is advocating for energy efficiency, renewable energy sources, and clean technologies, addressing the challenges of climate change. Through initiatives like the World Energy Outlook reports, the IEA provides comprehensive insights into global energy trends, projections, and policy scenarios. In recent years, the IEA has garnered attention for its commitment to advancing clean energy transitions and contributing to global climate goals. Through collaboration with governments, industries, and international organizations, the IEA actively works towards shaping a sustainable and secure energy future on a global scale.
+
+#### World Bank
+The World Bank, established in 1944, stands as a prominent international financial institution dedicated to supporting the development endeavors of nations worldwide. Its fundamental mission revolves around alleviating poverty and promoting sustainable economic development. Comprising two main institutions, the International Bank for Reconstruction and Development (IBRD) and the International Development Association (IDA), the World Bank provides financial assistance in the form of loans, grants, and expert guidance.
+
+The World Bank engages in projects spanning various sectors, including education, health, infrastructure, agriculture, and energy, with a focus on fostering economic growth, reducing inequality, and improving living conditions. In the realm of energy, the World Bank plays a crucial role in financing and implementing projects that enhance access to energy in developing countries, promote renewable energy sources, and improve energy efficiency. Emphasizing sustainable development, environmental protection, and social inclusion, the World Bank's contributions extend beyond financial assistance to actively shaping a more equitable and sustainable global future through comprehensive development initiatives.
 
