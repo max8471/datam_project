@@ -14,6 +14,7 @@ library(tidyr)
 library(dplyr)
 library(vroom)
 library(stringr)
+library(knitr)
 ```
 
 ```{r}
@@ -45,4 +46,31 @@ Key to its mission is advocating for energy efficiency, renewable energy sources
 The World Bank, established in 1944, stands as a prominent international financial institution dedicated to supporting the development endeavors of nations worldwide. Its fundamental mission revolves around alleviating poverty and promoting sustainable economic development. Comprising two main institutions, the International Bank for Reconstruction and Development (IBRD) and the International Development Association (IDA), the World Bank provides financial assistance in the form of loans, grants, and expert guidance.
 
 The World Bank engages in projects spanning various sectors, including education, health, infrastructure, agriculture, and energy, with a focus on fostering economic growth, reducing inequality, and improving living conditions. In the realm of energy, the World Bank plays a crucial role in financing and implementing projects that enhance access to energy in developing countries, promote renewable energy sources, and improve energy efficiency. Emphasizing sustainable development, environmental protection, and social inclusion, the World Bank's contributions extend beyond financial assistance to actively shaping a more equitable and sustainable global future through comprehensive development initiatives.
+
+### Information about the data files
+
+#### IEA data
+```{r}
+#| message: false
+#| echo: false
+n_rows_IEA=nrow(df)
+n_cols_IEA=ncol(df)
+basic_info_IEA <- data.frame(
+  Description = c("Number of Rows", "Number of Columns"),
+  Value = c(n_rows_IEA, n_cols_IEA))
+kable(basic_info_IEA)
+```
+
+#### GDP data
+```{r}
+#| message: false
+#| echo: false
+n_rows_GDP=nrow(gdp)
+n_cols_GDP=ncol(gdp)
+basic_info_GDP <- data.frame(
+  Description = c("Number of Rows", "Number of Columns"),
+  Value = c(n_rows_GDP, n_cols_GDP))
+kable(basic_info_GDP)
+```
+
 
