@@ -23,10 +23,10 @@ https://github.com/max8471/datam_project
 
 ## Sources for the data
 For the energy RD&D spending data :
-Download the dataset from this link (https://www.iea.org/data-and-statistics/data-product/energy-technology-rd-and-d-budget-database-2#overview) and download it by clicking on "selected data". 
+The data set is available [here](https://www.iea.org/data-and-statistics/data-product/energy-technology-rd-and-d-budget-database-2#overview) and download it by clicking on "selected data". 
 Delete every sheet of the excel file except "public spending", and delete the first line of this sheet in order to have the years on the top row, then save it as a .csv file.
 
 For the GDP data : 
-Go to this link (https://databank.worldbank.org/reports.aspx?source=2&series=NY.GDP.MKTP.CD&country#) and select years 1974-2022, then download the data as a .csv file.
+Go to this link [GDP]((https://databank.worldbank.org/reports.aspx?source=2&series=NY.GDP.MKTP.CD&country#) and select years 1974-2022, then download the data as a .csv file.
 
 
