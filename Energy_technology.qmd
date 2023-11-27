@@ -74,3 +74,17 @@ kable(basic_info_GDP)
 ```
 
 
+### Filtering the data (IEA)
+
+Choosing a single currency (USD 2022 prices and PPP), for the whole dataset
+```{r}
+filtered_df <- df |>
+  filter(Currency == "USD (2022 prices and PPP)")
+```
+
+Removing year 2023 and stop at year 2022 as for the GDP
+```{r}
+filtered_df <- filtered_df[, -ncol(filtered_df)]
+```
+
+
