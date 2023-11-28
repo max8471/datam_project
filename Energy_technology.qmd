@@ -4,6 +4,11 @@ format: html
 author: "Disem Sula, Maximilien de La Ruelle"
 editor: visual
 ---
+
+```{r}
+
+```
+
 ```{r message=FALSE}
 #| echo: false
 #| message: false
@@ -24,25 +29,27 @@ df<-vroom(here("IEA_Energy_RDD_selected_dataproject.csv"))
 gdp<-vroom(here("WorldBank_GDP_data.csv"))
 
 ```
+
 ### Link to the github repository of this project
+
 [Github repository](https://github.com/max8471/datam_project)
 
 ### Sources for the data
-For the energy RD&D spending data :
-The data set is available [here](https://www.iea.org/data-and-statistics/data-product/energy-technology-rd-and-d-budget-database-2#overview) and download it by clicking on "selected data". 
-Delete every sheet of the excel file except "public spending", and delete the first line of this sheet in order to have the years on the top row, then save it as a .csv file.
 
-For the GDP data : 
-Go to this [link](https://databank.worldbank.org/reports.aspx?source=2&series=NY.GDP.MKTP.CD&country#) and select years 1974-2022, then download the data as a .csv file.
+For the energy RD&D spending data : The data set is available [here](https://www.iea.org/data-and-statistics/data-product/energy-technology-rd-and-d-budget-database-2#overview) and download it by clicking on "selected data". Delete every sheet of the excel file except "public spending", and delete the first line of this sheet in order to have the years on the top row, then save it as a .csv file.
+
+For the GDP data : Go to this [link](https://databank.worldbank.org/reports.aspx?source=2&series=NY.GDP.MKTP.CD&country#) and select years 1974-2022, then download the data as a .csv file.
 
 ### Description of the sources
 
 #### International Energy agency
+
 The International Energy Agency (IEA) is a pivotal organization founded in 1974 within the framework of the Organization for Economic Co-operation and Development (OECD). Comprising major energy consumers and producers globally, the IEA serves to enhance energy security, foster economic growth, and promote environmental sustainability. Its primary functions encompass collecting and analyzing energy data, conducting in-depth studies, and offering policy advice to member countries. The IEA also plays a critical role in coordinating emergency responses during energy supply disruptions.
 
 Key to its mission is advocating for energy efficiency, renewable energy sources, and clean technologies, addressing the challenges of climate change. Through initiatives like the World Energy Outlook reports, the IEA provides comprehensive insights into global energy trends, projections, and policy scenarios. In recent years, the IEA has garnered attention for its commitment to advancing clean energy transitions and contributing to global climate goals. Through collaboration with governments, industries, and international organizations, the IEA actively works towards shaping a sustainable and secure energy future on a global scale.
 
 #### World Bank
+
 The World Bank, established in 1944, stands as a prominent international financial institution dedicated to supporting the development endeavors of nations worldwide. Its fundamental mission revolves around alleviating poverty and promoting sustainable economic development. Comprising two main institutions, the International Bank for Reconstruction and Development (IBRD) and the International Development Association (IDA), the World Bank provides financial assistance in the form of loans, grants, and expert guidance.
 
 The World Bank engages in projects spanning various sectors, including education, health, infrastructure, agriculture, and energy, with a focus on fostering economic growth, reducing inequality, and improving living conditions. In the realm of energy, the World Bank plays a crucial role in financing and implementing projects that enhance access to energy in developing countries, promote renewable energy sources, and improve energy efficiency. Emphasizing sustainable development, environmental protection, and social inclusion, the World Bank's contributions extend beyond financial assistance to actively shaping a more equitable and sustainable global future through comprehensive development initiatives.
@@ -50,6 +57,7 @@ The World Bank engages in projects spanning various sectors, including education
 ### Information about the data files
 
 #### IEA data
+
 ```{r}
 #| message: false
 #| echo: false
@@ -62,6 +70,7 @@ kable(basic_info_IEA)
 ```
 
 #### GDP data
+
 ```{r}
 #| message: false
 #| echo: false
@@ -73,18 +82,68 @@ basic_info_GDP <- data.frame(
 kable(basic_info_GDP)
 ```
 
-
 ### Filtering the data (IEA)
 
 Choosing a single currency (USD 2022 prices and PPP), for the whole dataset
+
 ```{r}
 filtered_df <- df |>
   filter(Currency == "USD (2022 prices and PPP)")
 ```
 
 Removing year 2023 and stop at year 2022 as for the GDP
+
 ```{r}
 filtered_df <- filtered_df[, -ncol(filtered_df)]
 ```
 
+Removing the column Currency in filtered_df since it is not useful anymore
+```{r}
+filtered_df <- subset(filtered_df, select = -Currency)
+```
+filtered_df <- subset(filtered_df, select = c(-Currency, -prout))
+
+### Processing the GDP data to make it correctly mergeable with the IEA one
+Only keeping the year in the column names of gdp
+```{r}
+col_names <- colnames(gdp)
+
+col_names[5:length(col_names)] <- substr(col_names[5:length(col_names)], 1, 4)
+
+colnames(gdp) <- col_names
+```
+
+Modifying 3 names of countries so everything is written with the same standards in both dataframes
+```{r}
+gdp <- gdp |> mutate(`Country Name` = ifelse(`Country Name` == "Korea, Rep.", "Korea", `Country Name`))
+
+gdp <- gdp |> mutate(`Country Name` = ifelse(`Country Name` == "Czechia", "Czech Republic", `Country Name`))
+
+filtered_df <- filtered_df |> mutate(`Country` = ifelse(startsWith(`Country`,"Republic of T"), "Turkiye", `Country`))
+```
+
+
+Keeping the gdp only for the countries that appears in filtered_df, and storing it into a new dataframe named filtered_gdp
+```{r}
+distinct_countries <- unique(filtered_df$Country)
+
+# Create filtered_gdp by subsetting gdp based on the common values in the "country" column
+filtered_gdp <- gdp[gdp$`Country Name` %in% distinct_countries, ]
+```
+
+Now removing the rows that won't be useful for us
+```{r}
+filtered_gdp <- subset(filtered_gdp, select = c(-`Series Name`, -`Series Code`, -`Country Code`))
+```
+
+Merging the data NOT WORKING YET
+```{r}
+merged_data <- left_join(filtered_df, filtered_gdp, by = c("Country" = "Country Name"))
+
+# Reshape the data using pivot_longer
+merged_data <- merged_data %>%
+  pivot_longer(cols = ends_with("x"), names_to = "Year", values_to = "GDP") %>%
+  mutate(Technology = "GDP") %>%
+  select(Country, Technology, Year, GDP)
+```
 
