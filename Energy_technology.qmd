@@ -54,7 +54,7 @@ The World Bank, established in 1944, stands as a prominent international financi
 
 The World Bank engages in projects spanning various sectors, including education, health, infrastructure, agriculture, and energy, with a focus on fostering economic growth, reducing inequality, and improving living conditions. In the realm of energy, the World Bank plays a crucial role in financing and implementing projects that enhance access to energy in developing countries, promote renewable energy sources, and improve energy efficiency. Emphasizing sustainable development, environmental protection, and social inclusion, the World Bank's contributions extend beyond financial assistance to actively shaping a more equitable and sustainable global future through comprehensive development initiatives.
 
-### Information about the data files
+### Information about the initial data files
 
 #### IEA data
 
@@ -63,9 +63,11 @@ The World Bank engages in projects spanning various sectors, including education
 #| echo: false
 n_rows_IEA=nrow(df)
 n_cols_IEA=ncol(df)
+col_names_IEA <- colnames(df)
+country_names_IEA <- sapply(unique(df$Country), function(x) iconv(x, "latin1", "UTF-8"))
 basic_info_IEA <- data.frame(
-  Description = c("Number of Rows", "Number of Columns"),
-  Value = c(n_rows_IEA, n_cols_IEA))
+  Description = c("Number of Rows", "Number of Columns", "Column Names", "Countries"),
+  Value = c(n_rows_IEA, n_cols_IEA, paste(col_names_IEA, collapse=", "), paste(country_names_IEA, collapse = ", ")))
 kable(basic_info_IEA)
 ```
 
@@ -74,11 +76,13 @@ kable(basic_info_IEA)
 ```{r}
 #| message: false
 #| echo: false
+col_names_GDP <- colnames(gdp)
 n_rows_GDP=nrow(gdp)
 n_cols_GDP=ncol(gdp)
+country_names_GDP=unique(gdp$`Country Name`)
 basic_info_GDP <- data.frame(
-  Description = c("Number of Rows", "Number of Columns"),
-  Value = c(n_rows_GDP, n_cols_GDP))
+  Description = c("Number of Rows", "Number of Columns", "Column Names", "Countries"),
+  Value = c(n_rows_GDP, n_cols_GDP, paste(col_names_GDP, collapse = ", "), paste(country_names_GDP, collapse = ", ")))
 kable(basic_info_GDP)
 ```
 
@@ -86,7 +90,7 @@ kable(basic_info_GDP)
 
 Choosing a single currency (USD 2022 prices and PPP), for the whole dataset
 
-```{r}
+```{r collapse=TRUE, collapse_show=FALSE}
 filtered_df <- df |>
   filter(Currency == "USD (2022 prices and PPP)")
 ```
@@ -134,13 +138,40 @@ Now removing the rows that won't be useful for us
 filtered_gdp <- subset(filtered_gdp, select = c(-`Series Name`, -`Series Code`, -`Country Code`))
 ```
 
+Changing the column name to Country from Country name
+```{r}
+filtered_gdp <- filtered_gdp |>
+  rename(Country = `Country Name`)
+```
 
 Making sure all the data is numerical before merging
-```{r}
+```{r, warning=FALSE}
+#| message: false
 filtered_df <- filtered_df %>%
   mutate(across(-c(Country, Technology), ~as.numeric(gsub(",", ".", .))))
 
 filtered_gdp <- filtered_gdp %>%
-  mutate(across(-`Country Name`, ~as.numeric(gsub(",", ".", .))))
+  mutate(across(-`Country`, ~as.numeric(gsub(",", ".", .))))
+```
+
+GDP in millions (as the R&D spending is in millions)
+```{r}
+filtered_gdp <- filtered_gdp |>
+  mutate(across(matches("^[12]"), ~./1000000))
+```
+
+### Merging
+
+Adding a row for each country to include the GDP into the data as if it is a Technology
+```{r}
+combined_df <- bind_rows(filtered_df, filtered_gdp) |>
+  arrange(Country, Technology)
+options(scipen = 999)
+```
+
+Changing the name of the of the GDP appearing as "NA" to "GDP"
+```{r}
+combined_df <- combined_df |>
+  mutate(Technology = ifelse(is.na(Technology), "GDP", Technology))
 ```
 
