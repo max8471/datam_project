@@ -101,7 +101,6 @@ Removing the column Currency in filtered_df since it is not useful anymore
 ```{r}
 filtered_df <- subset(filtered_df, select = -Currency)
 ```
-filtered_df <- subset(filtered_df, select = c(-Currency, -prout))
 
 ### Processing the GDP data to make it correctly mergeable with the IEA one
 Only keeping the year in the column names of gdp
@@ -127,7 +126,6 @@ Keeping the gdp only for the countries that appears in filtered_df, and storing 
 ```{r}
 distinct_countries <- unique(filtered_df$Country)
 
-# Create filtered_gdp by subsetting gdp based on the common values in the "country" column
 filtered_gdp <- gdp[gdp$`Country Name` %in% distinct_countries, ]
 ```
 
@@ -136,14 +134,13 @@ Now removing the rows that won't be useful for us
 filtered_gdp <- subset(filtered_gdp, select = c(-`Series Name`, -`Series Code`, -`Country Code`))
 ```
 
-Merging the data NOT WORKING YET
-```{r}
-merged_data <- left_join(filtered_df, filtered_gdp, by = c("Country" = "Country Name"))
 
-# Reshape the data using pivot_longer
-merged_data <- merged_data %>%
-  pivot_longer(cols = ends_with("x"), names_to = "Year", values_to = "GDP") %>%
-  mutate(Technology = "GDP") %>%
-  select(Country, Technology, Year, GDP)
+Making sure all the data is numerical before merging
+```{r}
+filtered_df <- filtered_df %>%
+  mutate(across(-c(Country, Technology), ~as.numeric(gsub(",", ".", .))))
+
+filtered_gdp <- filtered_gdp %>%
+  mutate(across(-`Country Name`, ~as.numeric(gsub(",", ".", .))))
 ```
 
