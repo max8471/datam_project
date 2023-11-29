@@ -88,27 +88,38 @@ kable(basic_info_GDP)
 
 ### Filtering the data (IEA)
 
-Choosing a single currency (USD 2022 prices and PPP), for the whole dataset
-
-```{r collapse=TRUE, collapse_show=FALSE}
+**Currency Standardization:**
+All monetary values in the dataset were set to USD using 2022 prices and PPP for uniformity.
+```{r}
+#| code-fold: true
+#Choosing a single currency (USD 2022 prices and PPP), for the whole dataset
 filtered_df <- df |>
   filter(Currency == "USD (2022 prices and PPP)")
 ```
 
-Removing year 2023 and stop at year 2022 as for the GDP
-
+**Timeframe Adjustment:**
+The dataset was restricted to the years up to 2022, removing data for the year 2023.
 ```{r}
+#| code-fold: true
+#Removing year 2023 and stop at year 2022 as for the GDP
 filtered_df <- filtered_df[, -ncol(filtered_df)]
 ```
 
-Removing the column Currency in filtered_df since it is not useful anymore
+**Column Removal:**
+The 'Currency' column in the filtered dataset was removed as it became redundant after currency standardization.
 ```{r}
+#| code-fold: true
+#Removing the column Currency in filtered_df since it is not useful anymore
 filtered_df <- subset(filtered_df, select = -Currency)
 ```
 
 ### Processing the GDP data to make it correctly mergeable with the IEA one
-Only keeping the year in the column names of gdp
+
+**Column Naming Standardization:**
+Only the year information was retained in the column names for GDP
 ```{r}
+#| code-fold: true
+#Only keeping the year in the column names of gdp
 col_names <- colnames(gdp)
 
 col_names[5:length(col_names)] <- substr(col_names[5:length(col_names)], 1, 4)
@@ -116,8 +127,11 @@ col_names[5:length(col_names)] <- substr(col_names[5:length(col_names)], 1, 4)
 colnames(gdp) <- col_names
 ```
 
-Modifying 3 names of countries so everything is written with the same standards in both dataframes
+**Country names harmonization:**
+Three country names were standardized for consistency across datasets.
 ```{r}
+#| code-fold: true
+#Modifying 3 names of countries so everything is written with the same standards in both dataframes
 gdp <- gdp |> mutate(`Country Name` = ifelse(`Country Name` == "Korea, Rep.", "Korea", `Country Name`))
 
 gdp <- gdp |> mutate(`Country Name` = ifelse(`Country Name` == "Czechia", "Czech Republic", `Country Name`))
@@ -125,28 +139,38 @@ gdp <- gdp |> mutate(`Country Name` = ifelse(`Country Name` == "Czechia", "Czech
 filtered_df <- filtered_df |> mutate(`Country` = ifelse(startsWith(`Country`,"Republic of T"), "Turkiye", `Country`))
 ```
 
-
-Keeping the gdp only for the countries that appears in filtered_df, and storing it into a new dataframe named filtered_gdp
+**Filtered GDP Creation:**
+A new dataframe, 'filtered_gdp,' was created, containing GDP data only for countries present in the IEA dataset.
 ```{r}
+#| code-fold: true
+#Keeping the gdp only for the countries that appears in filtered_df, and storing it into a new dataframe named filtered_gdp
 distinct_countries <- unique(filtered_df$Country)
 
 filtered_gdp <- gdp[gdp$`Country Name` %in% distinct_countries, ]
 ```
 
-Now removing the rows that won't be useful for us
+**Columns Removal:**
+Columns with irrelevant or redundant information were removed to streamline the dataframe
 ```{r}
+#| code-fold: true
+#Now removing the columns that won't be useful for us
 filtered_gdp <- subset(filtered_gdp, select = c(-`Series Name`, -`Series Code`, -`Country Code`))
 ```
 
-Changing the column name to Country from Country name
+**Column Name Adjustment:**
+The column name 'Country name' was changed to 'Country' for consistency with the naming convention in the IEA filtered dataframe.
 ```{r}
+#| code-fold: true
+#Changing the column name to Country from Country name
 filtered_gdp <- filtered_gdp |>
   rename(Country = `Country Name`)
 ```
 
-Making sure all the data is numerical before merging
+**Data Type Standardization:**
+Ensured that all data was in numerical format, facilitating seamless merging of datasets.
 ```{r, warning=FALSE}
-#| message: false
+#| code-fold: true
+#Making sure all the data is numerical before merging
 filtered_df <- filtered_df %>%
   mutate(across(-c(Country, Technology), ~as.numeric(gsub(",", ".", .))))
 
@@ -154,24 +178,47 @@ filtered_gdp <- filtered_gdp %>%
   mutate(across(-`Country`, ~as.numeric(gsub(",", ".", .))))
 ```
 
-GDP in millions (as the R&D spending is in millions)
+**Unit Standardization:**
+GDP values were converted to millions to align with the unit of R&D spending, both measured in millions.
 ```{r}
+#| code-fold: true
+#GDP in millions (as the R&D spending is in millions)
 filtered_gdp <- filtered_gdp |>
   mutate(across(matches("^[12]"), ~./1000000))
 ```
 
-### Merging
+### Merging the two datasets
 
-Adding a row for each country to include the GDP into the data as if it is a Technology
+**Integration of GDP as a Technology:**
+A new row was added for each country, treating GDP as a technological variable for comprehensive analysis.
 ```{r}
+#| code-fold: true
+#Adding a row for each country to include the GDP into the data as if it is a Technology
 combined_df <- bind_rows(filtered_df, filtered_gdp) |>
   arrange(Country, Technology)
 options(scipen = 999)
 ```
 
-Changing the name of the of the GDP appearing as "NA" to "GDP"
+**Handling a clarity issue:**
+Renamed 'NA' entry to 'GDP' in column named "Technology" for clarity and completeness in the dataset
 ```{r}
+#| code-fold: true
+#Changing the name of the of the GDP appearing as "NA" to "GDP"
 combined_df <- combined_df |>
   mutate(Technology = ifelse(is.na(Technology), "GDP", Technology))
 ```
+
+## Research question
+
+The global landscape of energy technology and its intersection with economic development have undergone profound transformations over the past five decades. As nations strive for sustainable energy solutions and economic growth, it becomes imperative to investigate the trajectory of energy technology advancements and the corresponding shifts in public Research, Development, and Deployment (RD&D) investments. This research aims to discern patterns, disparities, and potential correlations in the evolution of energy technologies among a countries over a 50-year span.
+
+**Research Question:**
+The primary research question guiding this investigation is: "Has there been a discernible change in the energy technology landscape among countries and group of countries such as G7 and EU over the last 50 years, and how does this relate to the proportion of public RD&D spending in relation to their Gross Domestic Product (GDP)?"
+
+The choice of groups like G7 and EU countries for this analysis stems from their global economic significance and shared commitment to addressing energy challenges. By delving into the energy technology trajectories of these nations, we aim to identify trends that may offer insights into the efficacy of different policy approaches, economic structures, and innovation ecosystems. Additionally, linking these technological advancements to the proportion of GDP allocated to public RD&D spending provides a nuanced understanding of the prioritization of research and innovation in different types of technologies within the broader economic context.
+
+To address the research question, a comprehensive longitudinal analysis will be conducted, spanning five decades from 1974 to 2022. Key variables to be examined include indicators of energy technology evolution, using the public expenditure on RD&D in different technologies to find the adoption of renewable energy sources, advancements in energy efficiency, and breakthroughs in emerging technologies.
+In parallel, the study will scrutinize each country's GDP and the corresponding public expenditure on RD&D in the energy sector allowing for the assessment of not only technological shifts but also the relative prioritization of energy research within each nation's economic landscape.
+
+The anticipated outcomes of this research include a nuanced understanding of the changing dynamics in energy technology across countries and an exploration of the relationship between economic development, public RD&D spending, and technological innovation. Insights derived from this analysis can inform policymakers, researchers, and industry stakeholders about effective strategies for navigating the intersection of energy, innovation, and economic growth in a rapidly changing global landscape.
 
