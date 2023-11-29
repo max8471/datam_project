@@ -5,10 +5,6 @@ author: "Disem Sula, Maximilien de La Ruelle"
 editor: visual
 ---
 
-```{r}
-
-```
-
 ```{r message=FALSE}
 #| echo: false
 #| message: false
@@ -210,15 +206,79 @@ combined_df <- combined_df |>
 
 ## Research question
 
-The global landscape of energy technology and its intersection with economic development have undergone profound transformations over the past five decades. As nations strive for sustainable energy solutions and economic growth, it becomes imperative to investigate the trajectory of energy technology advancements and the corresponding shifts in public Research, Development, and Deployment (RD&D) investments. This research aims to discern patterns, disparities, and potential correlations in the evolution of energy technologies among a countries over a 50-year span.
+The global landscape of energy technology and its intersection with economic development have undergone profound transformations over the past five decades. As nations strive for sustainable energy solutions and economic growth, it becomes imperative to investigate the trajectory of energy technology advancements and the corresponding shifts in public Research, Development, and Deployment (RD&D) investments. This research aims to discern patterns, disparities, and potential correlations in the evolution of spending of RD&D on energy technologies among a set of countries over a 50-year span.
 
 **Research Question:**
 The primary research question guiding this investigation is: "Has there been a discernible change in the energy technology landscape among countries and group of countries such as G7 and EU over the last 50 years, and how does this relate to the proportion of public RD&D spending in relation to their Gross Domestic Product (GDP)?"
 
-The choice of groups like G7 and EU countries for this analysis stems from their global economic significance and shared commitment to addressing energy challenges. By delving into the energy technology trajectories of these nations, we aim to identify trends that may offer insights into the efficacy of different policy approaches, economic structures, and innovation ecosystems. Additionally, linking these technological advancements to the proportion of GDP allocated to public RD&D spending provides a nuanced understanding of the prioritization of research and innovation in different types of technologies within the broader economic context.
+The choice of groups like G7 and EU countries for this analysis stems from their global economic significance and shared commitment to addressing energy challenges. By delving into the energy technology trajectories of these nations, we aim to identify trends that may offer insights into the changes in economic structures and innovation ecosystems. Additionally, linking these technological advancements to the proportion of GDP allocated to public RD&D allows to make them comparable from one country to another.
 
 To address the research question, a comprehensive longitudinal analysis will be conducted, spanning five decades from 1974 to 2022. Key variables to be examined include indicators of energy technology evolution, using the public expenditure on RD&D in different technologies to find the adoption of renewable energy sources, advancements in energy efficiency, and breakthroughs in emerging technologies.
 In parallel, the study will scrutinize each country's GDP and the corresponding public expenditure on RD&D in the energy sector allowing for the assessment of not only technological shifts but also the relative prioritization of energy research within each nation's economic landscape.
 
-The anticipated outcomes of this research include a nuanced understanding of the changing dynamics in energy technology across countries and an exploration of the relationship between economic development, public RD&D spending, and technological innovation. Insights derived from this analysis can inform policymakers, researchers, and industry stakeholders about effective strategies for navigating the intersection of energy, innovation, and economic growth in a rapidly changing global landscape.
+The anticipated outcomes of this research include a nuanced understanding of the changing dynamics in energy technology across countries and an exploration of the relationship between economic development and public RD&D spending.
+
+
+
+As an introduction, here you will find the evolutions in RD&D spending in 3 major technologies (Nuclear power, fossil fuels and renewables energies) for 3 main areas (Europe, Asia and Oceania, Americas)
+```{r}
+#| echo: false
+filtered_data_IEA_Europe <- combined_df |>
+  filter(Country == "IEA Europe" & Technology %in% c("Fossil fuels", "Nuclear", "Renewables"))
+
+filtered_data_IEA_Americas <- combined_df |>
+  filter(Country == "IEA Americas" & Technology %in% c("Fossil fuels", "Nuclear", "Renewables"))
+
+filtered_data_IEA_Asia_Oceania <- combined_df |>
+  filter(Country == "IEA Asia Oceania" & Technology %in% c("Fossil fuels", "Nuclear", "Renewables"))
+```
+
+
+```{r}
+#| echo: false
+reshaped_IEA_Europe <- filtered_data_IEA_Europe |>
+  pivot_longer(cols = c(starts_with("19"),starts_with("20")), names_to = "Year", values_to = "Value")
+
+reshaped_IEA_Europe$Year <- as.numeric(reshaped_IEA_Europe$Year)
+
+ggplot(reshaped_IEA_Europe, aes(x = Year, y = Value, color = Technology)) +
+  geom_line() +
+    scale_color_manual(values = c("Renewables" = "darkgreen", "Fossil fuels" = "brown", "Nuclear" = "purple"))+
+  labs(title = "Europe - Temporal Trends in Energy RD&D Spending (1974-2022)",
+       x = "Year",
+       y = "Millions of 2022 USD",
+       color = "Technology")
+
+
+
+
+reshaped_IEA_Asia_Oceania <- filtered_data_IEA_Asia_Oceania |>
+  pivot_longer(cols = c(starts_with("19"),starts_with("20")), names_to = "Year", values_to = "Value")
+
+reshaped_IEA_Asia_Oceania$Year <- as.numeric(reshaped_IEA_Asia_Oceania$Year)
+
+ggplot(reshaped_IEA_Asia_Oceania, aes(x = Year, y = Value, color = Technology)) +
+  geom_line() +
+    scale_color_manual(values = c("Renewables" = "darkgreen", "Fossil fuels" = "brown", "Nuclear" = "purple"))+
+  labs(title = "Asia and Oceania - Temporal Trends in Energy RD&D Spending (1974-2022)",
+       x = "Year",
+       y = "Millions of 2022 USD",
+       color = "Technology")
+
+
+
+reshaped_IEA_Americas <- filtered_data_IEA_Americas |>
+  pivot_longer(cols = c(starts_with("19"),starts_with("20")), names_to = "Year", values_to = "Value")
+
+reshaped_IEA_Americas$Year <- as.numeric(reshaped_IEA_Americas$Year)
+
+ggplot(reshaped_IEA_Americas, aes(x = Year, y = Value, color = Technology)) +
+  geom_line() +
+  scale_color_manual(values = c("Renewables" = "darkgreen", "Fossil fuels" = "brown", "Nuclear" = "purple"))+
+  labs(title = "Americas - Temporal Trends in Energy RD&D Spending (1974-2022)",
+       x = "Year",
+       y = "Millions of 2022 USD",
+       color = "Technology")
+```
+
 
