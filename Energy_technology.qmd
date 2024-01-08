@@ -3,6 +3,8 @@ title: "Analysis of the trends in RD&D spending by energy technology (1974-2022)
 format: html
 author: "Disem Sula, Maximilien de La Ruelle"
 editor: visual
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r message=FALSE}
@@ -280,12 +282,32 @@ ggplot(reshaped_IEA_Americas, aes(x = Year, y = Value, color = Technology)) +
        y = "Millions of 2022 USD",
        color = "Technology")
 ```
-## Creation of a data set with values normalized by the GDP
-```{r}
 
+## Creation of a data set with values normalized by the GDP
+
+```{r}
+G7_countries <- c("France", "Italy", "Germany", "United States", "Japan", "United Kingdom", "Canada")
+```
+
+```{r}
 reshaped_df <- combined_df |>
   pivot_longer(cols = c(starts_with("19"),starts_with("20")), names_to = "Year", values_to = "Value")
+```
 
+```{r}
+reshaped_df$Year <- as.numeric(reshaped_df$Year)
+```
+
+```{r}
+g7_summary_df0 <- reshaped_df %>%
+  filter(Country %in% G7_countries) %>%
+  group_by(Year, Technology) %>%
+  summarise(Spending = sum(ifelse(is.na(Value), 0, Value)), .groups = "drop")
+```
+
+
+
+```{r}
 gdp_rows <- reshaped_df %>% filter(Technology == "GDP")
 
 # Values are in %o (permille)
@@ -294,5 +316,6 @@ normalized_df <- reshaped_df %>%
   mutate(Value_normalized = Value*1000 / Value_GDP) %>%
   select(-Value_GDP)
 ```
+
 
 
