@@ -86,8 +86,8 @@ kable(basic_info_GDP)
 
 ### Filtering the data (IEA)
 
-**Currency Standardization:**
-All monetary values in the dataset were set to USD using 2022 prices and PPP for uniformity.
+**Currency Standardization:** All monetary values in the dataset were set to USD using 2022 prices and PPP for uniformity.
+
 ```{r}
 #| code-fold: true
 #Choosing a single currency (USD 2022 prices and PPP), for the whole dataset
@@ -95,16 +95,16 @@ filtered_df <- df |>
   filter(Currency == "USD (2022 prices and PPP)")
 ```
 
-**Timeframe Adjustment:**
-The dataset was restricted to the years up to 2022, removing data for the year 2023.
+**Timeframe Adjustment:** The dataset was restricted to the years up to 2022, removing data for the year 2023.
+
 ```{r}
 #| code-fold: true
 #Removing year 2023 and stop at year 2022 as for the GDP
 filtered_df <- filtered_df[, -ncol(filtered_df)]
 ```
 
-**Column Removal:**
-The 'Currency' column in the filtered dataset was removed as it became redundant after currency standardization.
+**Column Removal:** The 'Currency' column in the filtered dataset was removed as it became redundant after currency standardization.
+
 ```{r}
 #| code-fold: true
 #Removing the column Currency in filtered_df since it is not useful anymore
@@ -113,8 +113,8 @@ filtered_df <- subset(filtered_df, select = -Currency)
 
 ### Processing the GDP data to make it correctly mergeable with the IEA one
 
-**Column Naming Standardization:**
-Only the year information was retained in the column names for GDP
+**Column Naming Standardization:** Only the year information was retained in the column names for GDP
+
 ```{r}
 #| code-fold: true
 #Only keeping the year in the column names of gdp
@@ -125,8 +125,8 @@ col_names[5:length(col_names)] <- substr(col_names[5:length(col_names)], 1, 4)
 colnames(gdp) <- col_names
 ```
 
-**Country names harmonization:**
-Three country names were standardized for consistency across datasets.
+**Country names harmonization:** Three country names were standardized for consistency across datasets.
+
 ```{r}
 #| code-fold: true
 #Modifying 3 names of countries so everything is written with the same standards in both dataframes
@@ -137,8 +137,8 @@ gdp <- gdp |> mutate(`Country Name` = ifelse(`Country Name` == "Czechia", "Czech
 filtered_df <- filtered_df |> mutate(`Country` = ifelse(startsWith(`Country`,"Republic of T"), "Turkiye", `Country`))
 ```
 
-**Filtered GDP Creation:**
-A new dataframe, 'filtered_gdp,' was created, containing GDP data only for countries present in the IEA dataset.
+**Filtered GDP Creation:** A new dataframe, 'filtered_gdp,' was created, containing GDP data only for countries present in the IEA dataset.
+
 ```{r}
 #| code-fold: true
 #Keeping the gdp only for the countries that appears in filtered_df, and storing it into a new dataframe named filtered_gdp
@@ -147,16 +147,16 @@ distinct_countries <- unique(filtered_df$Country)
 filtered_gdp <- gdp[gdp$`Country Name` %in% distinct_countries, ]
 ```
 
-**Columns Removal:**
-Columns with irrelevant or redundant information were removed to streamline the dataframe
+**Columns Removal:** Columns with irrelevant or redundant information were removed to streamline the dataframe
+
 ```{r}
 #| code-fold: true
 #Now removing the columns that won't be useful for us
 filtered_gdp <- subset(filtered_gdp, select = c(-`Series Name`, -`Series Code`, -`Country Code`))
 ```
 
-**Column Name Adjustment:**
-The column name 'Country name' was changed to 'Country' for consistency with the naming convention in the IEA filtered dataframe.
+**Column Name Adjustment:** The column name 'Country name' was changed to 'Country' for consistency with the naming convention in the IEA filtered dataframe.
+
 ```{r}
 #| code-fold: true
 #Changing the column name to Country from Country name
@@ -164,8 +164,8 @@ filtered_gdp <- filtered_gdp |>
   rename(Country = `Country Name`)
 ```
 
-**Data Type Standardization:**
-Ensured that all data was in numerical format, facilitating seamless merging of datasets.
+**Data Type Standardization:** Ensured that all data was in numerical format, facilitating seamless merging of datasets.
+
 ```{r, warning=FALSE}
 #| code-fold: true
 #Making sure all the data is numerical before merging
@@ -176,8 +176,8 @@ filtered_gdp <- filtered_gdp %>%
   mutate(across(-`Country`, ~as.numeric(gsub(",", ".", .))))
 ```
 
-**Unit Standardization:**
-GDP values were converted to millions to align with the unit of R&D spending, both measured in millions.
+**Unit Standardization:** GDP values were converted to millions to align with the unit of R&D spending, both measured in millions.
+
 ```{r}
 #| code-fold: true
 #GDP in millions (as the R&D spending is in millions)
@@ -187,8 +187,8 @@ filtered_gdp <- filtered_gdp |>
 
 ### Merging the two datasets
 
-**Integration of GDP as a Technology:**
-A new row was added for each country, treating GDP as a technological variable for comprehensive analysis.
+**Integration of GDP as a Technology:** A new row was added for each country, treating GDP as a technological variable for comprehensive analysis.
+
 ```{r}
 #| code-fold: true
 #Adding a row for each country to include the GDP into the data as if it is a Technology
@@ -197,8 +197,8 @@ combined_df <- bind_rows(filtered_df, filtered_gdp) |>
 options(scipen = 999)
 ```
 
-**Handling a clarity issue:**
-Renamed 'NA' entry to 'GDP' in column named "Technology" for clarity and completeness in the dataset
+**Handling a clarity issue:** Renamed 'NA' entry to 'GDP' in column named "Technology" for clarity and completeness in the dataset
+
 ```{r}
 #| code-fold: true
 #Changing the name of the of the GDP appearing as "NA" to "GDP"
@@ -210,19 +210,16 @@ combined_df <- combined_df |>
 
 The global landscape of energy technology and its intersection with economic development have undergone profound transformations over the past five decades. As nations strive for sustainable energy solutions and economic growth, it becomes imperative to investigate the trajectory of energy technology advancements and the corresponding shifts in public Research, Development, and Deployment (RD&D) investments. This research aims to discern patterns, disparities, and potential correlations in the evolution of spending of RD&D on energy technologies among a set of countries over a 50-year span.
 
-**Research Question:**
-The primary research question guiding this investigation is: "Has there been a discernible change in the energy technology landscape among countries and group of countries such as G7 and EU over the last 50 years, and how does this relate to the proportion of public RD&D spending in relation to their Gross Domestic Product (GDP)?"
+**Research Question:** The primary research question guiding this investigation is: "Has there been a discernible change in the energy technology landscape among countries and group of countries such as G7 and EU over the last 50 years, and how does this relate to the proportion of public RD&D spending in relation to their Gross Domestic Product (GDP)?"
 
 The choice of groups like G7 and EU countries for this analysis stems from their global economic significance and shared commitment to addressing energy challenges. By delving into the energy technology trajectories of these nations, we aim to identify trends that may offer insights into the changes in economic structures and innovation ecosystems. Additionally, linking these technological advancements to the proportion of GDP allocated to public RD&D allows to make them comparable from one country to another.
 
-To address the research question, a comprehensive longitudinal analysis will be conducted, spanning five decades from 1974 to 2022. Key variables to be examined include indicators of energy technology evolution, using the public expenditure on RD&D in different technologies to find the adoption of renewable energy sources, advancements in energy efficiency, and breakthroughs in emerging technologies.
-In parallel, the study will scrutinize each country's GDP and the corresponding public expenditure on RD&D in the energy sector allowing for the assessment of not only technological shifts but also the relative prioritization of energy research within each nation's economic landscape.
+To address the research question, a comprehensive longitudinal analysis will be conducted, spanning five decades from 1974 to 2022. Key variables to be examined include indicators of energy technology evolution, using the public expenditure on RD&D in different technologies to find the adoption of renewable energy sources, advancements in energy efficiency, and breakthroughs in emerging technologies. In parallel, the study will scrutinize each country's GDP and the corresponding public expenditure on RD&D in the energy sector allowing for the assessment of not only technological shifts but also the relative prioritization of energy research within each nation's economic landscape.
 
 The anticipated outcomes of this research include a nuanced understanding of the changing dynamics in energy technology across countries and an exploration of the relationship between economic development and public RD&D spending.
 
-
-
 As an introduction, here you will find the evolutions in RD&D spending in 3 major technologies (Nuclear power, fossil fuels and renewables energies) for 3 main areas (Europe, Asia and Oceania, Americas)
+
 ```{r}
 #| echo: false
 filtered_data_IEA_Europe <- combined_df |>
@@ -234,7 +231,6 @@ filtered_data_IEA_Americas <- combined_df |>
 filtered_data_IEA_Asia_Oceania <- combined_df |>
   filter(Country == "IEA Asia Oceania" & Technology %in% c("Fossil fuels", "Nuclear", "Renewables"))
 ```
-
 
 ```{r}
 #| echo: false
@@ -305,7 +301,6 @@ g7_summary_df0 <- reshaped_df %>%
   summarise(Spending = sum(ifelse(is.na(Value), 0, Value)), .groups = "drop")
 ```
 
-
 ```{r}
 gdp_rows <- reshaped_df %>% filter(Technology == "GDP")
 
@@ -316,15 +311,14 @@ normalized_df <- reshaped_df %>%
   select(-Value_GDP)
 ```
 
-
 ```{r}
 filtered_data_G7 <- normalized_df |>
   filter(Country %in% G7)
 filtered_data_G7$Year <- as.numeric(filtered_data_G7$Year)
 ```
 
-
 ## Comparing spending in %O of the GDP for G7 countries in various technologies
+
 ```{r}
 #| echo: false
 #| message: false
@@ -424,4 +418,7 @@ ggplot(filtered_data_G7_totalbudget, aes(x = Year, y = Value_normalized, group=C
 
 ```
 
+```{r}
+test push
+```
 
