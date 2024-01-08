@@ -418,7 +418,3 @@ ggplot(filtered_data_G7_totalbudget, aes(x = Year, y = Value_normalized, group=C
 
 ```
 
-```{r}
-test push
-```
-
