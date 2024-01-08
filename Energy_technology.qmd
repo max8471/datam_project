@@ -286,7 +286,7 @@ ggplot(reshaped_IEA_Americas, aes(x = Year, y = Value, color = Technology)) +
 ## Creation of a data set with values normalized by the GDP
 
 ```{r}
-G7_countries <- c("France", "Italy", "Germany", "United States", "Japan", "United Kingdom", "Canada")
+G7 <- c("France", "Italy", "Germany", "United States", "Japan", "United Kingdom", "Canada")
 ```
 
 ```{r}
@@ -300,11 +300,10 @@ reshaped_df$Year <- as.numeric(reshaped_df$Year)
 
 ```{r}
 g7_summary_df0 <- reshaped_df %>%
-  filter(Country %in% G7_countries) %>%
+  filter(Country %in% G7) %>%
   group_by(Year, Technology) %>%
   summarise(Spending = sum(ifelse(is.na(Value), 0, Value)), .groups = "drop")
 ```
-
 
 
 ```{r}
@@ -317,5 +316,112 @@ normalized_df <- reshaped_df %>%
   select(-Value_GDP)
 ```
 
+
+```{r}
+filtered_data_G7 <- normalized_df |>
+  filter(Country %in% G7)
+filtered_data_G7$Year <- as.numeric(filtered_data_G7$Year)
+```
+
+
+## Comparing spending in %O of the GDP for G7 countries in various technologies
+```{r}
+#| echo: false
+#| message: false
+filtered_data_G7_nuclear<- filtered_data_G7 |>
+  filter(Country %in% G7 & Technology =="Nuclear")
+
+ggplot(filtered_data_G7_nuclear, aes(x = Year, y = Value_normalized, group=Country, color=Country)) +
+  geom_line() +
+  labs(title = "G7 - Nuclear",
+       x = "Year",
+       y = "%o of GDP",
+       color = "Country")
+
+
+
+filtered_data_G7_renewables<- filtered_data_G7 |>
+  filter(Country %in% G7 & Technology =="Renewables")
+
+ggplot(filtered_data_G7_renewables, aes(x = Year, y = Value_normalized, group=Country, color=Country)) +
+  geom_line() +
+  labs(title = "G7 - Renewables",
+       x = "Year",
+       y = "%o of GDP",
+       color = "Country")
+
+
+
+filtered_data_G7_energyefficiency<- filtered_data_G7 |>
+  filter(Country %in% G7 & Technology =="Energy efficiency")
+
+ggplot(filtered_data_G7_energyefficiency, aes(x = Year, y = Value_normalized, group=Country, color=Country)) +
+  geom_line() +
+  labs(title = "G7 - Energy efficiency",
+       x = "Year",
+       y = "%o of GDP",
+       color = "Country")
+
+
+
+filtered_data_G7_fossilfuels<- filtered_data_G7 |>
+  filter(Country %in% G7 & Technology =="Fossil fuels")
+
+ggplot(filtered_data_G7_fossilfuels, aes(x = Year, y = Value_normalized, group=Country, color=Country)) +
+  geom_line() +
+  labs(title = "G7 - Fossil fuels",
+       x = "Year",
+       y = "%o of GDP",
+       color = "Country")
+
+
+
+filtered_data_G7_Hydrogen<- filtered_data_G7 |>
+  filter(Country %in% G7 & Technology =="Hydrogen and fuel cells")
+
+ggplot(filtered_data_G7_Hydrogen, aes(x = Year, y = Value_normalized, group=Country, color=Country)) +
+  geom_line() +
+  labs(title = "G7 - Hydrogen and fuel cells",
+       x = "Year",
+       y = "%o of GDP",
+       color = "Country")
+
+
+
+filtered_data_G7_othercrosscutting<- filtered_data_G7 |>
+  filter(Country %in% G7 & Technology =="Other cross-cutting technologies/research")
+
+ggplot(filtered_data_G7_othercrosscutting, aes(x = Year, y = Value_normalized, group=Country, color=Country)) +
+  geom_line() +
+  labs(title = "G7 - Other cross-cutting technologies/research",
+       x = "Year",
+       y = "%o of GDP",
+       color = "Country")
+
+
+
+filtered_data_G7_Powerandstorage<- filtered_data_G7 |>
+  filter(Country %in% G7 & Technology =="Other power and storage technologies")
+
+ggplot(filtered_data_G7_Powerandstorage, aes(x = Year, y = Value_normalized, group=Country, color=Country)) +
+  geom_line() +
+  labs(title = "G7 - Other power and storage technologies",
+       x = "Year",
+       y = "%o of GDP",
+       color = "Country")
+
+
+
+filtered_data_G7_totalbudget<- filtered_data_G7 |>
+  filter(Country %in% G7 & Technology =="Total Budget")
+
+ggplot(filtered_data_G7_totalbudget, aes(x = Year, y = Value_normalized, group=Country, color=Country)) +
+  geom_line() +
+  labs(title = "G7 - Total Budget",
+       x = "Year",
+       y = "%o of GDP",
+       color = "Country")
+
+```
 
 
