@@ -280,5 +280,19 @@ ggplot(reshaped_IEA_Americas, aes(x = Year, y = Value, color = Technology)) +
        y = "Millions of 2022 USD",
        color = "Technology")
 ```
+## Creation of a data set with values normalized by the GDP
+```{r}
+
+reshaped_df <- combined_df |>
+  pivot_longer(cols = c(starts_with("19"),starts_with("20")), names_to = "Year", values_to = "Value")
+
+gdp_rows <- reshaped_df %>% filter(Technology == "GDP")
+
+# Values are in %o (permille)
+normalized_df <- reshaped_df %>%
+  left_join(gdp_rows, by = c("Country", "Year"), suffix = c("", "_GDP")) %>%
+  mutate(Value_normalized = Value*1000 / Value_GDP) %>%
+  select(-Value_GDP)
+```
 
 
