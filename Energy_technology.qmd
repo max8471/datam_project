@@ -282,19 +282,27 @@ ggplot(reshaped_IEA_Americas, aes(x = Year, y = Value, color = Technology)) +
 ## Creation of a data set with values normalized by the GDP
 
 ```{r}
+#| echo: false
+#| message: false
 G7 <- c("France", "Italy", "Germany", "United States", "Japan", "United Kingdom", "Canada")
 ```
 
 ```{r}
+#| echo: false
+#| message: false
 reshaped_df <- combined_df |>
   pivot_longer(cols = c(starts_with("19"),starts_with("20")), names_to = "Year", values_to = "Value")
 ```
 
 ```{r}
+#| echo: false
+#| message: false
 reshaped_df$Year <- as.numeric(reshaped_df$Year)
 ```
 
 ```{r}
+#| echo: false
+#| #| message: false
 g7_summary_df0 <- reshaped_df %>%
   filter(Country %in% G7) %>%
   group_by(Year, Technology) %>%
@@ -302,6 +310,8 @@ g7_summary_df0 <- reshaped_df %>%
 ```
 
 ```{r}
+#| echo: false
+#| message: false
 gdp_rows <- reshaped_df %>% filter(Technology == "GDP")
 
 # Values are in %o (permille)
@@ -312,6 +322,8 @@ normalized_df <- reshaped_df %>%
 ```
 
 ```{r}
+#| echo: false
+#| #| message: false
 filtered_data_G7 <- normalized_df |>
   filter(Country %in% G7)
 filtered_data_G7$Year <- as.numeric(filtered_data_G7$Year)
@@ -417,4 +429,58 @@ ggplot(filtered_data_G7_totalbudget, aes(x = Year, y = Value_normalized, group=C
        color = "Country")
 
 ```
+
+#Regrression G7 countries GDP and Total budget on R&D in energy technologies
+```{r}
+#| echo: false
+#| #| message: false
+df_regress <- subset(g7_summary_df0, Technology %in% c('GDP', 'Total Budget'))
+df_pivot_regress <- pivot_wider(df_regress, names_from = Technology, values_from = Spending)
+
+#Linear regression
+model <- lm(`Total Budget` ~ GDP, data = df_pivot_regress)
+
+summary(model)
+```
+
+```{r}
+#| echo: false
+#| #| message: false
+ggplot(df_pivot_regress, aes(x = GDP, y = `Total Budget`)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "lightblue") +
+  geom_text(aes(label = Year), vjust = -0.5, hjust = -0.5, size = 3) +  # Add Year labels
+  labs(title = "Regression Analysis: GDP vs Total Budget",
+       x = "GDP",
+       y = "Total Budget") +
+  theme_minimal()
+```
+
+We notice an interesting relationship from the 90's one, so we are going to do a regression limiting the data from the 90's on.
+
+```{r}
+#| echo: false
+#| message: false
+df_regress_90s <- subset(g7_summary_df0, Technology %in% c('GDP', 'Total Budget') & Year >= 1990 & Year <= 2022)
+df_pivot_regress_90s <- pivot_wider(df_regress_90s, names_from = Technology, values_from = Spending)
+
+model_subset <- lm(`Total Budget` ~ GDP, data = df_pivot_regress_90s)
+
+summary(model_subset)
+```
+
+```{r}
+#| echo: false
+#| message: false
+ggplot(df_pivot_regress_90s, aes(x = GDP, y = `Total Budget`)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "lightblue") +
+  geom_text(aes(label = Year), vjust = -0.5, hjust = -0.5, size = 3) +  # Add Year labels
+  labs(title = "Regression Analysis: GDP vs Total Budget (1990-2022)",
+       x = "GDP",
+       y = "Total Budget") +
+  theme_minimal()
+```
+
+
 
