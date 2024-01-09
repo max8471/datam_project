@@ -4,7 +4,7 @@ format: html
 author: "Disem Sula, Maximilien de La Ruelle"
 editor: visual
 editor_options: 
-  chunk_output_type: console
+  chunk_output_type: inline
 ---
 
 ```{r message=FALSE}
@@ -279,8 +279,6 @@ ggplot(reshaped_IEA_Americas, aes(x = Year, y = Value, color = Technology)) +
        color = "Technology")
 ```
 
-## Creation of a data set with values normalized by the GDP
-
 ```{r}
 #| echo: false
 #| message: false
@@ -292,11 +290,7 @@ G7 <- c("France", "Italy", "Germany", "United States", "Japan", "United Kingdom"
 #| message: false
 reshaped_df <- combined_df |>
   pivot_longer(cols = c(starts_with("19"),starts_with("20")), names_to = "Year", values_to = "Value")
-```
 
-```{r}
-#| echo: false
-#| message: false
 reshaped_df$Year <- as.numeric(reshaped_df$Year)
 ```
 
@@ -309,6 +303,64 @@ g7_summary_df0 <- reshaped_df %>%
   summarise(Spending = sum(ifelse(is.na(Value), 0, Value)), .groups = "drop")
 ```
 
+#Regression G7 countries GDP and Total budget on R&D in energy technologies
+```{r}
+#| echo: false
+#| #| message: false
+df_regress <- subset(g7_summary_df0, Technology %in% c('GDP', 'Total Budget'))
+df_pivot_regress <- pivot_wider(df_regress, names_from = Technology, values_from = Spending)
+
+#Linear regression
+model <- lm(`Total Budget` ~ GDP, data = df_pivot_regress)
+
+summary(model)
+```
+
+```{r}
+#| echo: false
+#| #| message: false
+ggplot(df_pivot_regress, aes(x = GDP, y = `Total Budget`)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "lightblue") +
+  geom_text(aes(label = Year), vjust = -0.5, hjust = -0.5, size = 3) +  # Add Year labels
+  labs(title = "Regression Analysis: GDP vs Total Budget",
+       x = "GDP",
+       y = "Total Budget") +
+  theme_minimal()
+```
+
+We notice an interesting relationship from the 90's one, so we are going to do a regression limiting the data from the 90's on.
+
+```{r}
+#| echo: false
+#| message: false
+df_regress_90s <- subset(g7_summary_df0, Technology %in% c('GDP', 'Total Budget') & Year >= 1990 & Year <= 2022)
+df_pivot_regress_90s <- pivot_wider(df_regress_90s, names_from = Technology, values_from = Spending)
+
+model_subset <- lm(`Total Budget` ~ GDP, data = df_pivot_regress_90s)
+
+summary(model_subset)
+```
+
+```{r}
+#| echo: false
+#| message: false
+ggplot(df_pivot_regress_90s, aes(x = GDP, y = `Total Budget`)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "lightblue") +
+  geom_text(aes(label = Year), vjust = -0.5, hjust = -0.5, size = 3) +  # Add Year labels
+  labs(title = "Regression Analysis: GDP vs Total Budget (1990-2022)",
+       x = "GDP",
+       y = "Total Budget") +
+  theme_minimal()
+```
+
+We notice a strong correlation between the GDP and the total budget on energy spending (R-squared=0.76 on the period 1990-2022). To correct this effect, we are going to normalize our values of spending by expressing them as a permillage of the GDP of the country at that time.
+
+
+## Creation of a data set with values normalized by the GDP
+
+
 ```{r}
 #| echo: false
 #| message: false
@@ -318,7 +370,7 @@ gdp_rows <- reshaped_df %>% filter(Technology == "GDP")
 normalized_df <- reshaped_df %>%
   left_join(gdp_rows, by = c("Country", "Year"), suffix = c("", "_GDP")) %>%
   mutate(Value_normalized = Value*1000 / Value_GDP) %>%
-  select(-Value_GDP)
+  select(-Value_GDP,-Technology_GDP)
 ```
 
 ```{r}
@@ -328,6 +380,21 @@ filtered_data_G7 <- normalized_df |>
   filter(Country %in% G7)
 filtered_data_G7$Year <- as.numeric(filtered_data_G7$Year)
 ```
+
+## Now normalizing the same way but bot the G7 grouped data
+```{r}
+G7_gdp_rows <- g7_summary_df0 %>% filter(Technology=="GDP")
+```
+
+
+```{r}
+G7_normalized <- g7_summary_df0 %>%
+  left_join(G7_gdp_rows,by="Year",suffix=c("","_GDP")) %>%
+  mutate(Spending_normalized=Spending*1000/Spending_GDP) %>%
+  select(-Technology_GDP,-Spending_GDP)
+```
+
+
 
 ## Comparing spending in %O of the GDP for G7 countries in various technologies
 
@@ -429,58 +496,74 @@ ggplot(filtered_data_G7_totalbudget, aes(x = Year, y = Value_normalized, group=C
        color = "Country")
 
 ```
-
-#Regrression G7 countries GDP and Total budget on R&D in energy technologies
-```{r}
-#| echo: false
-#| #| message: false
-df_regress <- subset(g7_summary_df0, Technology %in% c('GDP', 'Total Budget'))
-df_pivot_regress <- pivot_wider(df_regress, names_from = Technology, values_from = Spending)
-
-#Linear regression
-model <- lm(`Total Budget` ~ GDP, data = df_pivot_regress)
-
-summary(model)
-```
-
-```{r}
-#| echo: false
-#| #| message: false
-ggplot(df_pivot_regress, aes(x = GDP, y = `Total Budget`)) +
-  geom_point() +
-  geom_smooth(method = "lm", se = FALSE, color = "lightblue") +
-  geom_text(aes(label = Year), vjust = -0.5, hjust = -0.5, size = 3) +  # Add Year labels
-  labs(title = "Regression Analysis: GDP vs Total Budget",
-       x = "GDP",
-       y = "Total Budget") +
-  theme_minimal()
-```
-
-We notice an interesting relationship from the 90's one, so we are going to do a regression limiting the data from the 90's on.
+We see that for quite every technology, the spending in public rd&d, when expressed as a per millage of the GDP, is very similar and follows the same trend from one G7 country to another. And even more on the period 1990-2022, where the correlation between GDP and Total budget has been highlighted precedently.
+This will allow us to analyze the trend in spending at the G7 level while staying relevant, since this group is homogeneous enough.
 
 ```{r}
 #| echo: false
 #| message: false
-df_regress_90s <- subset(g7_summary_df0, Technology %in% c('GDP', 'Total Budget') & Year >= 1990 & Year <= 2022)
-df_pivot_regress_90s <- pivot_wider(df_regress_90s, names_from = Technology, values_from = Spending)
+filtered_G7 <- G7_normalized |>
+  filter(Technology %in% c("Fossil fuels", "Nuclear", "Renewables","Energy efficiency","Hydrogen and fuel cells","Other cross-cutting technologies/research","Other power and storage technologies"))
+```
 
-model_subset <- lm(`Total Budget` ~ GDP, data = df_pivot_regress_90s)
 
-summary(model_subset)
+```{r}
+#| echo: false
+#| message: false
+ggplot(filtered_G7, aes(x = Year, y = Spending_normalized, color = Technology)) +
+  geom_line()+
+  labs(title = "Spending on various energy technologies for G7 (1974-2022)",
+       x = "Year",
+       y = "Spending (per millage of the GDP)",
+       color = "Technology")
+```
+Now let's plot it without the nuclear to have a better view on the other variables
+
+```{r}
+#| echo: false
+#| message: false
+G7_wonuc <- G7_normalized |>
+  filter(Technology %in% c("Fossil fuels", "Renewables","Energy efficiency","Hydrogen and fuel cells","Other cross-cutting technologies/research","Other power and storage technologies"))
 ```
 
 ```{r}
 #| echo: false
 #| message: false
-ggplot(df_pivot_regress_90s, aes(x = GDP, y = `Total Budget`)) +
-  geom_point() +
-  geom_smooth(method = "lm", se = FALSE, color = "lightblue") +
-  geom_text(aes(label = Year), vjust = -0.5, hjust = -0.5, size = 3) +  # Add Year labels
-  labs(title = "Regression Analysis: GDP vs Total Budget (1990-2022)",
-       x = "GDP",
-       y = "Total Budget") +
-  theme_minimal()
+ggplot(G7_wonuc, aes(x = Year, y = Spending_normalized, color = Technology)) +
+  geom_line() +
+  labs(title = "Spending on various energy technologies for G7 (nuclear excluded) (1974-2022)",
+       x = "Year",
+       y = "Spending (per millage of the GDP)",
+       color = "Technology")
+```
+To highlight the interest of the transformation, let's have a look at what it would have looked like with non normalized values
+
+```{r}
+#| echo: false
+#| message: false
+G7_nonnorm <- g7_summary_df0 |>
+  filter(Technology %in% c("Fossil fuels", "Renewables","Nuclear", "Energy efficiency","Hydrogen and fuel cells","Other cross-cutting technologies/research","Other power and storage technologies"))
+
+ggplot(G7_nonnorm, aes(x = Year, y = Spending, color = Technology)) +
+  geom_line() +
+  labs(title = "NON NORMALIZED Spending on various energy technologies for G7 (1974-2022)",
+       x = "Year",
+       y = "Spending (per millage of the GDP)",
+       color = "Technology")
 ```
 
 
 
+```{r}
+#| echo: false
+#| message: false
+G7_wonuc_nonnorm <- g7_summary_df0 |>
+  filter(Technology %in% c("Fossil fuels", "Renewables","Energy efficiency","Hydrogen and fuel cells","Other cross-cutting technologies/research","Other power and storage technologies"))
+
+ggplot(G7_wonuc_nonnorm, aes(x = Year, y = Spending, color = Technology)) +
+  geom_line() +
+  labs(title = "NON NORMALIZED Spending on various energy technologies for G7 (nuclear excluded) (1974-2022)",
+       x = "Year",
+       y = "Spending (per millage of the GDP)",
+       color = "Technology")
+```
