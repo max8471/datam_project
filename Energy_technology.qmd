@@ -21,6 +21,7 @@ library(vroom)
 library(stringr)
 library(knitr)
 library(patchwork)
+library(broom)
 ```
 
 ```{r}
@@ -297,6 +298,102 @@ reshaped_df <- combined_df |>
 reshaped_df$Year <- as.numeric(reshaped_df$Year)
 ```
 
+## Correlation between GDP and Total budget
+We suspect GDP and the amount allocated to public RD&D to be correlated. To find out if it is, we are going to look at the R-squared, for each year, of the linear regression between the Total Budget and the GDP.
+
+```{r}
+regression_df<-reshaped_df%>%
+  filter(Technology %in% c("Total Budget", "GDP"))
+
+r_squared_results <- data.frame(Year = numeric(), R_squared = numeric())
+coefficients_results<-data.frame(Year=numeric(), Intercept=numeric(), Coefficient=numeric())
+
+for (year in 1974:2022) {
+  df_year <- regression_df %>%
+    filter(Year == year) %>%
+    select(-Year)
+
+  total_budget_data <- df_year %>%
+    filter(Technology == "Total Budget") %>%
+    select(Country, Value)
+
+  gdp_data <- df_year %>%
+    filter(Technology == "GDP") %>%
+    select(Country, Value)
+
+  
+  common_countries <- intersect(total_budget_data$Country, gdp_data$Country)
+
+  total_budget_data <- total_budget_data %>%
+    filter(Country %in% common_countries) %>%
+    arrange(Country)
+
+  gdp_data <- gdp_data %>%
+    filter(Country %in% common_countries) %>%
+    arrange(Country)
+  
+  lm_result <- lm(total_budget_data$Value ~ gdp_data$Value)
+
+  r_squared <- summary(lm_result)$r.squared
+  coefficients <- coefficients(lm_result)
+
+  r_squared_results <- bind_rows(r_squared_results, data.frame(Year = year, R_squared = r_squared))
+  coefficients_results <- bind_rows(coefficients_results, data.frame(Year = year, Intercept = coefficients[1], Coefficient = coefficients[2]))
+}
+```
+
+```{r}
+ggplot(r_squared_results, aes(x = Year, y = R_squared)) +
+  geom_line() +
+  geom_point() +
+  ylim(0,1) +
+  labs(title = "R-squared values over the years",
+       x = "Year",
+       y = "R-squared")
+
+```
+
+```{r}
+ggplot(coefficients_results, aes(x = Year, y = Coefficient)) +
+  geom_line() +
+  geom_point() +
+  labs(title = "Coefficient values over the years",
+       x = "Year",
+       y = "Coefficient")
+```
+
+
+```{r}
+df1980<-regression_df%>%
+  filter(Year==1980)%>%
+  select(-Year)%>%
+  pivot_wider(names_from = Technology, values_from= Value)
+
+ggplot(df1980, aes(x = GDP, y = `Total Budget`)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "lightblue") +
+  labs(title = "Regression Analysis: GDP vs Total Budget",
+       x = "GDP",
+       y = "Total Budget") +
+  theme_minimal()
+```
+```{r}
+df2002<-regression_df%>%
+  filter(Year==2002)%>%
+  select(-Year)%>%
+  pivot_wider(names_from = Technology, values_from= Value)
+
+ggplot(df2002, aes(x = GDP, y = `Total Budget`)) +
+  geom_point() +
+  geom_smooth(method = "lm", se = FALSE, color = "lightblue") +
+  labs(title = "Regression Analysis: GDP vs Total Budget",
+       x = "GDP",
+       y = "Total Budget") +
+  theme_minimal()
+```
+
+
+
 ```{r}
 #| echo: false
 #| #| message: false
@@ -307,6 +404,7 @@ g7_summary_df0 <- reshaped_df %>%
 ```
 
 #Regression G7 countries GDP and Total budget on R&D in energy technologies
+
 ```{r}
 #| echo: false
 #| #| message: false
@@ -360,9 +458,7 @@ ggplot(df_pivot_regress_90s, aes(x = GDP, y = `Total Budget`)) +
 
 We notice a strong correlation between the GDP and the total budget on energy spending (R-squared=0.76 on the period 1990-2022). To correct this effect, we are going to normalize our values of spending by expressing them as a permillage of the GDP of the country at that time.
 
-
 ## Creation of a data set with values normalized by the GDP
-
 
 ```{r}
 #| echo: false
@@ -385,12 +481,12 @@ filtered_data_G7$Year <- as.numeric(filtered_data_G7$Year)
 ```
 
 ## Now normalizing the same way but bot the G7 grouped data
+
 ```{r}
 #| echo: false
 #| message: false
 G7_gdp_rows <- g7_summary_df0 %>% filter(Technology=="GDP")
 ```
-
 
 ```{r}
 #| echo: false
@@ -400,8 +496,6 @@ G7_normalized <- g7_summary_df0 %>%
   mutate(Spending_normalized=Spending*1000/Spending_GDP) %>%
   select(-Technology_GDP,-Spending_GDP)
 ```
-
-
 
 ## Comparing spending in %O of the GDP for G7 countries in various technologies
 
@@ -432,7 +526,6 @@ combined_plot_nuke <- plot1nuke + plot2nuke + plot_layout(guides = "collect")&
 combined_plot_nuke
 ```
 
-
 ```{r}
 #| echo: false
 #| message: false
@@ -457,7 +550,6 @@ combined_plot_renewables <- plot1renew + plot2renew + plot_layout(guides = "coll
   theme(legend.position = "bottom")
 combined_plot_renewables
 ```
-
 
 ```{r}
 #| echo: false
@@ -485,7 +577,6 @@ combined_plot_nrgeff <- plot1nrgeff + plot2nrgeff + plot_layout(guides = "collec
 combined_plot_nrgeff
 ```
 
-
 ```{r}
 #| echo: false
 #| message: false
@@ -511,7 +602,6 @@ combined_plot_foss <- plot1foss + plot2foss + plot_layout(guides = "collect")&
   theme(legend.position = "bottom")
 combined_plot_foss
 ```
-
 
 ```{r}
 #| echo: false
@@ -539,7 +629,6 @@ combined_plot_hydro <- plot1hydro + plot2hydro + plot_layout(guides = "collect")
 combined_plot_hydro
 ```
 
-
 ```{r}
 #| echo: false
 #| message: false
@@ -565,7 +654,6 @@ combined_plot_crosscut <- plot1crosscut + plot2crosscut + plot_layout(guides = "
   theme(legend.position = "bottom")
 combined_plot_crosscut
 ```
-
 
 ```{r}
 #| echo: false
@@ -593,7 +681,6 @@ combined_plot_pow <- plot1pow + plot2pow + plot_layout(guides = "collect")&
 combined_plot_pow
 ```
 
-
 ```{r}
 #| echo: false
 #| message: false
@@ -620,9 +707,7 @@ combined_plot_tot <- plot1tot + plot2tot + plot_layout(guides = "collect")&
 combined_plot_tot
 ```
 
-
-We see that for quite every technology, the spending in public rd&d, when expressed as a per millage of the GDP, is very similar and follows the same trend from one G7 country to another. And even more on the period 1990-2022, where the correlation between GDP and Total budget has been highlighted precedently.
-This will allow us to analyze the trend in spending at the G7 level while staying relevant, since this group is homogeneous enough.
+We see that for quite every technology, the spending in public rd&d, when expressed as a per millage of the GDP, is very similar and follows the same trend from one G7 country to another. And even more on the period 1990-2022, where the correlation between GDP and Total budget has been highlighted precedently. This will allow us to analyze the trend in spending at the G7 level while staying relevant, since this group is homogeneous enough.
 
 ```{r}
 #| echo: false
