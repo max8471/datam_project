@@ -1,6 +1,7 @@
 ---
 title: "Analysis of the trends in RD&D spending by energy technology (1974-2022)"
-format: html
+format:
+  wordcount-html: default
 author: "Disem Sula, Maximilien de La Ruelle"
 editor: visual
 warning: false
