@@ -6,7 +6,7 @@ author: "Disem Sula, Maximilien de La Ruelle"
 editor: visual
 warning: false
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 ---
 
 ```{r message=FALSE}
@@ -298,10 +298,13 @@ reshaped_df <- combined_df |>
 reshaped_df$Year <- as.numeric(reshaped_df$Year)
 ```
 
-## Correlation between GDP and Total budget
-We suspect GDP and the amount allocated to public RD&D to be correlated. To find out if it is, we are going to look at the R-squared, for each year, of the linear regression between the Total Budget and the GDP.
+## Analyzing the Correlation Between GDP and Public RD&D Spending
+In our initial exploration, we sought to understand the relationship between a country's Gross Domestic Product (GDP) and the funds allocated to public Research, Development, and Deployment (RD&D) in the energy sector. We hypothesized that these two variables might exhibit a correlation, indicative of the economic commitment to energy-related research.
+To investigate this, we performed a series of linear regressions for each year spanning 1974 to 2022, computing the R-squared values as a measure of the goodness of fit for the linear model. The R-squared values represent the proportion of the variation in the Total Budget (public RD&D spending) that can be explained by changes in GDP.
 
 ```{r}
+#| echo: false
+#| message: false
 regression_df<-reshaped_df%>%
   filter(Technology %in% c("Total Budget", "GDP"))
 
@@ -343,27 +346,36 @@ for (year in 1974:2022) {
 ```
 
 ```{r}
+#| echo: false
+#| message: false
 ggplot(r_squared_results, aes(x = Year, y = R_squared)) +
   geom_line() +
   geom_point() +
   ylim(0,1) +
-  labs(title = "R-squared values over the years",
+  labs(title = "R-squared values over the years 1974-2022",
        x = "Year",
        y = "R-squared")
 
 ```
 
+Our findings, visualized in the graph titled "R-squared values over the years 1974-2022," revealed a consistent and significant correlation between GDP and Total Budget. The R-squared values consistently exceeded 60%, indicating a substantial portion of the variability in public RD&D spending can be attributed to changes in GDP.
+
 ```{r}
-ggplot(coefficients_results, aes(x = Year, y = Coefficient)) +
-  geom_line() +
-  geom_point() +
-  labs(title = "Coefficient values over the years",
-       x = "Year",
-       y = "Coefficient")
+#| echo: false
+#| message: false
+#ggplot(coefficients_results, aes(x = Year, y = Coefficient)) +
+#  geom_line() +
+#  geom_point() +
+#  labs(title = "Coefficient values over the years 1974-2022",
+#       x = "Year",
+#       y = "Coefficient")
 ```
 
+After establishing the consistent correlation between Gross Domestic Product (GDP) and Total Budget (public RD&D spending) across the years, we further investigated the dynamics at the extremes—1980 and 2002—by pinpointing the lowest and highest R-squared values.
 
 ```{r}
+#| echo: false
+#| message: false
 df1980<-regression_df%>%
   filter(Year==1980)%>%
   select(-Year)%>%
@@ -372,12 +384,15 @@ df1980<-regression_df%>%
 ggplot(df1980, aes(x = GDP, y = `Total Budget`)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE, color = "lightblue") +
-  labs(title = "Regression Analysis: GDP vs Total Budget",
+  labs(title = "Regression Analysis: GDP vs Total Budget (1980)",
        x = "GDP",
        y = "Total Budget") +
   theme_minimal()
 ```
+
 ```{r}
+#| echo: false
+#| message: false
 df2002<-regression_df%>%
   filter(Year==2002)%>%
   select(-Year)%>%
@@ -386,40 +401,43 @@ df2002<-regression_df%>%
 ggplot(df2002, aes(x = GDP, y = `Total Budget`)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE, color = "lightblue") +
-  labs(title = "Regression Analysis: GDP vs Total Budget",
+  labs(title = "Regression Analysis: GDP vs Total Budget (2002)",
        x = "GDP",
        y = "Total Budget") +
   theme_minimal()
 ```
 
+The upward-sloping line, indicates a positive relationship between GDP and public RD&D spending. In this era, countries with higher GDP tended to allocate a larger budget to energy-related research.
+These analyses of extreme points serve as key snapshots in time, allowing us to witness the evolution of the correlation between economic indicators and public RD&D spending.
 
+#Examining G7 Countries: Evolution of RD&D Spending and GDP Relationship
+
+Focusing our lens on the Group of Seven (G7) countries, we conducted a regression analysis to scrutinize the relationship between Gross Domestic Product (GDP) and Total Budget allocated to Research, Development, and Deployment (RD&D) in the energy technology sector.
 
 ```{r}
 #| echo: false
-#| #| message: false
+#| message: false
 g7_summary_df0 <- reshaped_df %>%
   filter(Country %in% G7) %>%
   group_by(Year, Technology) %>%
   summarise(Spending = sum(ifelse(is.na(Value), 0, Value)), .groups = "drop")
 ```
 
-#Regression G7 countries GDP and Total budget on R&D in energy technologies
-
 ```{r}
 #| echo: false
-#| #| message: false
+#| message: false
 df_regress <- subset(g7_summary_df0, Technology %in% c('GDP', 'Total Budget'))
 df_pivot_regress <- pivot_wider(df_regress, names_from = Technology, values_from = Spending)
 
 #Linear regression
 model <- lm(`Total Budget` ~ GDP, data = df_pivot_regress)
-
-summary(model)
 ```
+
+In the initial graph titled "Regression Analysis: GDP vs Total Budget," spanning the entire period from 1974 to 2022, we observe a nuanced trajectory. Notably, there is a conspicuous decline in the total budget allocated to RD&D during the 80s, persisting until the early 2000s, after which a linear increase becomes apparent. This observation suggests a dynamic interplay between economic factors and government investments in energy-related research over the decades.
 
 ```{r}
 #| echo: false
-#| #| message: false
+#| message: false
 ggplot(df_pivot_regress, aes(x = GDP, y = `Total Budget`)) +
   geom_point() +
   geom_smooth(method = "lm", se = FALSE, color = "lightblue") +
@@ -430,7 +448,20 @@ ggplot(df_pivot_regress, aes(x = GDP, y = `Total Budget`)) +
   theme_minimal()
 ```
 
-We notice an interesting relationship from the 90's one, so we are going to do a regression limiting the data from the 90's on.
+What is interesting to see from this graph, other than the relationship, is the decline in total budget allocated to RD&D energy technology from governments during the 80s and until the 2000, when total budget started increasing again linearly.
+
+```{r}
+#| echo: false
+#| message: false
+ggplot(df_pivot_regress, aes(x = Year, y = `Total Budget`)) +
+  geom_area() +
+  labs(title = "Regression Analysis: GDP vs Total Budget",
+       x = "GDP",
+       y = "Total Budget") +
+  theme_minimal()
+```
+
+To delve deeper into this evolving relationship, we refined our analysis by narrowing the focus to the 1990s onwards. In the graph titled "Regression Analysis: GDP vs Total Budget (1990-2022)," we notice a compelling upward trend in the total budget for energy technology RD&D. The strong correlation is evident not only in the regression line but is also supported by an R-squared value of 0.76. This high R-squared value indicates that approximately 76% of the variability in the total budget for RD&D spending can be explained by changes in GDP during this specific period.
 
 ```{r}
 #| echo: false
@@ -440,8 +471,9 @@ df_pivot_regress_90s <- pivot_wider(df_regress_90s, names_from = Technology, val
 
 model_subset <- lm(`Total Budget` ~ GDP, data = df_pivot_regress_90s)
 
-summary(model_subset)
 ```
+
+The pronounced correlation from the 1990s onwards underscores a robust connection between economic growth and increased government spending on energy-related research within the G7 nations
 
 ```{r}
 #| echo: false
@@ -456,13 +488,12 @@ ggplot(df_pivot_regress_90s, aes(x = GDP, y = `Total Budget`)) +
   theme_minimal()
 ```
 
-We notice a strong correlation between the GDP and the total budget on energy spending (R-squared=0.76 on the period 1990-2022). To correct this effect, we are going to normalize our values of spending by expressing them as a permillage of the GDP of the country at that time.
-
-## Creation of a data set with values normalized by the GDP
+Next, let's narrow our focus to key technologies, investigating how G7 countries allocated their resources to foster advancements in energy technologies. This detailed analysis will provide a more granular understanding of the technological trajectories that accompanied the observed financial dynamics.
 
 ```{r}
 #| echo: false
 #| message: false
+#We have to create a data set with values normalized by the GDP
 gdp_rows <- reshaped_df %>% filter(Technology == "GDP")
 
 # Values are in %o (permille)
@@ -474,13 +505,11 @@ normalized_df <- reshaped_df %>%
 
 ```{r}
 #| echo: false
-#| #| message: false
+#| message: false
 filtered_data_G7 <- normalized_df |>
   filter(Country %in% G7)
 filtered_data_G7$Year <- as.numeric(filtered_data_G7$Year)
 ```
-
-## Now normalizing the same way but bot the G7 grouped data
 
 ```{r}
 #| echo: false
@@ -491,15 +520,20 @@ G7_gdp_rows <- g7_summary_df0 %>% filter(Technology=="GDP")
 ```{r}
 #| echo: false
 #| message: false
+#Then normalize it the same way but for the G7 grouped data
 G7_normalized <- g7_summary_df0 %>%
   left_join(G7_gdp_rows,by="Year",suffix=c("","_GDP")) %>%
   mutate(Spending_normalized=Spending*1000/Spending_GDP) %>%
   select(-Technology_GDP,-Spending_GDP)
 ```
 
-## Comparing spending in %O of the GDP for G7 countries in various technologies
+## Normalizing Spending: Unveiling G7 Similarities
 
-To highlight the interest of the transformation and show how it allows to see the similarities between G7 countries, we have also included the graphs with the spending expressed in 2022 USD instead of per millage of the GDP
+Recognizing the need to address potential distortions in our analysis caused by variations in the Gross Domestic Product (GDP) across G7 countries, we took a crucial step to normalize our spending values. This normalization was achieved by expressing the spending figures as permillages of the GDP, providing a more standardized measure and enabling a comparative analysis that considers each country's economic context.
+This normalization allows us to focus on shared patterns, providing a more accurate representation of the group's collaborative efforts in public RD&D spending. As we move forward, this standardized approach will enhance our ability to discern collective trends in energy technology evolution within the G7, shedding light on the collaborative strides made by these economically influential nations.
+
+To underscore the significance of our spending normalization, we present a series of graphs comparing public Research, Development, and Deployment (RD&D) spending across G7 countries in different technologies. These visualizations showcase spending expressed as both a permillage of the Gross Domestic Product (GDP) and in 2022 USD. 
+
 
 ```{r}
 #| echo: false
@@ -709,6 +743,16 @@ combined_plot_tot
 
 We see that for quite every technology, the spending in public rd&d, when expressed as a per millage of the GDP, is very similar and follows the same trend from one G7 country to another. And even more on the period 1990-2022, where the correlation between GDP and Total budget has been highlighted precedently. This will allow us to analyze the trend in spending at the G7 level while staying relevant, since this group is homogeneous enough.
 
+## Analyzing G7 Spending Trends in Energy Technologies
+
+Having established a normalized and comparable framework for analyzing spending in public Research, Development, and Deployment (RD&D) across G7 countries, we now focus on the spending of G7 as a whole.
+
+In the first graph that includes nuclear spending, we observe variations in spending levels, with nuclear standing out as having a higher magnitude compared to other technologies. To provide a clearer picture of trends in the remaining technologies, a second graph excludes nuclear spending.
+
+The combined plots highlight intriguing patterns in G7 countries' spending on different energy technologies from 1974 to 2022. Notably, there was a peak in spending around 1980, followed by a significant decline until the mid-90s. Subsequently, a relatively linear trend emerged, punctuated by occasional fluctuations. This observation aligns with broader economic and political shifts during this period.
+
+The ability to discern these trends at the G7 level, while staying relevant and considering the homogeneous nature of this group, provides valuable insights into the collective priorities and investments in energy technology RD&D.
+
 ```{r}
 #| echo: false
 #| message: false
@@ -737,3 +781,47 @@ combined_plot_g7tech <- (plot1g7tech + plot2g7tech) + plot_layout(guides = "coll
   theme(legend.position = "bottom")
 combined_plot_g7tech
 ```
+
+## Evolving Landscape of RD&D Spending: G7 Perspective
+
+In our exploration of the Research, Development, and Deployment (RD&D) spending landscape within G7 countries, we now turn our attention to how the percentage of spending on each energy technology has evolved relative to the Total Budget over the past decades. This analysis provides insights into the shifting priorities and investments in different technologies within the G7 consortium.
+
+**Key Observations:**
+
+- *Nuclear Energy Decline:*
+There is a significant decline in the percentage of RD&D investment in nuclear energy technology. In 1974, nuclear spending accounted for approximately 74% of the total budget for energy technology RD&D. However, by 2022, this proportion had decreased to around 20%. This highlights a substantial shift in priorities away from nuclear technology within the G7 countries.
+
+- *Rise of Energy Efficiency:*
+Energy efficiency exhibits a consistent and remarkable upward trend in terms of percentage on the total budget. Starting at around 2% in 1974, it has steadily increased and reached almost 25% in 2022. This suggests a sustained commitment to improving energy efficiency and conservation efforts.
+
+- *Steady Fossil Fuel Allocation:*
+Fossil fuel RD&D spending has remained relatively steady over the years, with a slight decline. In the 1980s and 1990s, it accounted for around 14%, which reduced to an average of 7-8% in the 2016-2022 period. This indicates a steady but reduced emphasis on fossil fuel technologies within the G7 consortium.
+
+- *Emergence of Hydrogen and Fuel Cells:*
+Hydrogen and fuel cells technology, while starting from virtually 0% in the 1980s and 1990s, has seen an increase. It reached around 3-5% of the total budget in the 2016-2022 period, showcasing a growing interest in these technologies, albeit from a relatively small base.
+
+- *Rising Role of Renewables:*
+The percentage of spending on renewable energy technologies has experienced a substantial increase in the last two decades. Starting almost from 0% in 1974, it climbed to around 20% between 2008 and 2016, reflecting a heightened focus on sustainable and renewable energy solutions.
+
+```{r}
+#| echo: false
+#| message: false
+df_percent <- g7_summary_df0 %>%
+  filter(Technology != "GDP" & Technology != "Total Budget" & Technology != "Unallocated") %>%
+  group_by(Year) %>%
+  mutate(Percentage = Spending / sum(Spending) * 100)
+
+selected_years <- c(1974, 1984, 1994, 2008, 2016, 2022)
+df_percent$YearGroup <- cut(df_percent$Year, breaks = c(-Inf, selected_years, Inf), labels = FALSE, include.lowest = TRUE)
+
+ggplot(df_percent, aes(x = factor(YearGroup), y = Percentage, fill = Technology)) +
+  geom_bar(stat = "identity", position = "fill") +
+  scale_x_discrete(labels = selected_years) +
+  labs(title = "Percentage of Spending on Each Technology Over Total Budget",
+       x = "Years",
+       y = "Percentage of Total Budget") +
+  scale_fill_discrete() +
+  theme_minimal() +
+  theme(legend.position = "bottom")
+```
+
