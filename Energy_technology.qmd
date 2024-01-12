@@ -790,8 +790,6 @@ combined_plot_g7tech
 
 ## Evolving Landscape of RD&D Spending: G7 Perspective
 
-In our exploration of the Research, Development, and Deployment (RD&D) spending landscape within G7 countries, we now turn our attention to how the percentage of spending on each energy technology has evolved relative to the Total Budget over the past decades. This analysis provides insights into the shifting priorities and investments in different technologies within the G7 consortium.
-
 **Key Observations:**
 
 - *Nuclear Energy Decline:*
