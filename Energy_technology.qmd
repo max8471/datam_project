@@ -564,7 +564,7 @@ plot2nuke<-ggplot(filtered_data_G7_nuclear, aes(x = Year, y = Value, group=Count
        y = "2022 USD",
        color = "Country")
 combined_plot_nuke <- plot1nuke + plot2nuke + plot_layout(guides = "collect")&
-  theme(legend.position = "bottom")
+  theme(legend.position = "top")
 combined_plot_nuke
 ```
 
@@ -589,7 +589,7 @@ plot2renew<-ggplot(filtered_data_G7_renewables, aes(x = Year, y = Value, group=C
        y = "2022 USD",
        color = "Country")
 combined_plot_renewables <- plot1renew + plot2renew + plot_layout(guides = "collect")&
-  theme(legend.position = "bottom")
+  theme(legend.position = "none")
 combined_plot_renewables
 ```
 
@@ -615,7 +615,7 @@ plot2nrgeff<-ggplot(filtered_data_G7_energyefficiency, aes(x = Year, y = Value, 
        color = "Country")
 
 combined_plot_nrgeff <- plot1nrgeff + plot2nrgeff + plot_layout(guides = "collect")&
-  theme(legend.position = "bottom")
+  theme(legend.position = "none")
 combined_plot_nrgeff
 ```
 
@@ -641,7 +641,7 @@ plot2foss<-ggplot(filtered_data_G7_fossilfuels, aes(x = Year, y = Value, group=C
        color = "Country")
 
 combined_plot_foss <- plot1foss + plot2foss + plot_layout(guides = "collect")&
-  theme(legend.position = "bottom")
+  theme(legend.position = "none")
 combined_plot_foss
 ```
 
@@ -667,7 +667,7 @@ plot2hydro<-ggplot(filtered_data_G7_Hydrogen, aes(x = Year, y = Value, group=Cou
        color = "Country")
 
 combined_plot_hydro <- plot1hydro + plot2hydro + plot_layout(guides = "collect")&
-  theme(legend.position = "bottom")
+  theme(legend.position = "none")
 combined_plot_hydro
 ```
 
@@ -693,7 +693,7 @@ plot2crosscut<-ggplot(filtered_data_G7_othercrosscutting, aes(x = Year, y = Valu
        color = "Country")
 
 combined_plot_crosscut <- plot1crosscut + plot2crosscut + plot_layout(guides = "collect")&
-  theme(legend.position = "bottom")
+  theme(legend.position = "none")
 combined_plot_crosscut
 ```
 
@@ -719,7 +719,7 @@ plot2pow<-ggplot(filtered_data_G7_Powerandstorage, aes(x = Year, y = Value, grou
        color = "Country")
 
 combined_plot_pow <- plot1pow + plot2pow + plot_layout(guides = "collect")&
-  theme(legend.position = "bottom")
+  theme(legend.position = "none")
 combined_plot_pow
 ```
 
@@ -745,7 +745,7 @@ plot2tot<-ggplot(filtered_data_G7_totalbudget, aes(x = Year, y = Value, group=Co
        color = "Country")
 
 combined_plot_tot <- plot1tot + plot2tot + plot_layout(guides = "collect")&
-  theme(legend.position = "bottom")
+  theme(legend.position = "none")
 combined_plot_tot
 ```
 
