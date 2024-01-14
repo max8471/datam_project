@@ -379,8 +379,7 @@ ggplot(df1980, aes(x = GDP, y = `Total Budget`)) +
   geom_smooth(method = "lm", se = FALSE, color = "lightblue") +
   labs(title = "Regression Analysis: GDP vs Total Budget in 2022 USD (1980)", subtitle = "R-Squared = 99% ",
        x = "GDP",
-       y = "Total Budget") +
-  theme_minimal()
+       y = "Total Budget")
 ```
 
 ```{r}
@@ -397,8 +396,7 @@ ggplot(df2002, aes(x = GDP, y = `Total Budget`)) +
   geom_smooth(method = "lm", se = FALSE, color = "lightblue") +
   labs(title = "Regression Analysis: GDP vs Total Budget in 2022 USD (2002)",subtitle = "R-Squared = 68% ",
        x = "GDP",
-       y = "Total Budget") +
-  theme_minimal()
+       y = "Total Budget")
 ```
 
 The upward-sloping line indicates a positive relationship between GDP and public RD&D spending. In this era, countries with higher GDP tended to allocate a larger budget to energy-related research.
@@ -555,14 +553,17 @@ plot1nuke<-ggplot(filtered_data_G7_nuclear, aes(x = Year, y = Value_normalized, 
   labs(title = "G7 - Nuclear",
        x = "Year",
        y = "%o of GDP",
-       color = "Country")
+       color = "Country")  +
+  theme(axis.title = element_text(size = 7), title = element_text(size=7))
 
 plot2nuke<-ggplot(filtered_data_G7_nuclear, aes(x = Year, y = Value, group=Country, color=Country)) +
   geom_line() +
   labs(title = "G7 - Nuclear",
        x = "Year",
        y = "2022 USD",
-       color = "Country")
+       color = "Country") +
+  theme(axis.title = element_text(size = 7), title = element_text(size=7))
+
 combined_plot_nuke <- plot1nuke + plot2nuke  + plot_layout(guides = "collect")&
   theme(legend.position = "none")
 #combined_plot_nuke
@@ -580,14 +581,17 @@ plot1renew<-ggplot(filtered_data_G7_renewables, aes(x = Year, y = Value_normaliz
   labs(title = "G7 - Renewables",
        x = "Year",
        y = "%o of GDP",
-       color = "Country")
+       color = "Country")  +
+  theme(axis.title = element_text(size = 7), title = element_text(size=7))
 
 plot2renew<-ggplot(filtered_data_G7_renewables, aes(x = Year, y = Value, group=Country, color=Country)) +
   geom_line() +
   labs(title = "G7 - Renewables",
        x = "Year",
        y = "2022 USD",
-       color = "Country")
+       color = "Country")  +
+  theme(axis.title = element_text(size = 7), title = element_text(size=7))
+
 combined_plot_renewables <- plot1renew + plot2renew + plot_layout(guides = "collect")&
   theme(legend.position = "none")
 #combined_plot_renewables
@@ -605,14 +609,16 @@ plot1nrgeff<-ggplot(filtered_data_G7_energyefficiency, aes(x = Year, y = Value_n
   labs(title = "G7 - Energy efficiency",
        x = "Year",
        y = "%o of GDP",
-       color = "Country")
+       color = "Country")  +
+  theme(axis.title = element_text(size = 7), title = element_text(size=7))
 
 plot2nrgeff<-ggplot(filtered_data_G7_energyefficiency, aes(x = Year, y = Value, group=Country, color=Country)) +
   geom_line() +
   labs(title = "G7 - Energy efficiency",
        x = "Year",
        y = "2022 USD",
-       color = "Country")
+       color = "Country")  +
+  theme(axis.title = element_text(size = 7), title = element_text(size=7))
 
 combined_plot_nrgeff <- plot1nrgeff + plot2nrgeff + plot_layout(guides = "collect")&
   theme(legend.position = "none")
@@ -631,14 +637,16 @@ plot1foss<-ggplot(filtered_data_G7_fossilfuels, aes(x = Year, y = Value_normaliz
   labs(title = "G7 - Fossil fuels",
        x = "Year",
        y = "%o of GDP",
-       color = "Country")
+       color = "Country")  +
+  theme(axis.title = element_text(size = 7), title = element_text(size=7))
 
 plot2foss<-ggplot(filtered_data_G7_fossilfuels, aes(x = Year, y = Value, group=Country, color=Country)) +
   geom_line() +
   labs(title = "G7 - Fossil fuels",
        x = "Year",
        y = "2022 USD",
-       color = "Country")
+       color = "Country")  +
+  theme(axis.title = element_text(size = 7), title = element_text(size=7))
 
 combined_plot_foss <- plot1foss + plot2foss + plot_layout(guides = "collect")&
   theme(legend.position = "none")
@@ -657,14 +665,16 @@ plot1hydro<-ggplot(filtered_data_G7_Hydrogen, aes(x = Year, y = Value_normalized
   labs(title = "G7 - Hydrogen and fuel cells",
        x = "Year",
        y = "%o of GDP",
-       color = "Country")
+       color = "Country")  +
+  theme(axis.title = element_text(size = 7), title = element_text(size=7))
 
 plot2hydro<-ggplot(filtered_data_G7_Hydrogen, aes(x = Year, y = Value, group=Country, color=Country)) +
   geom_line() +
   labs(title = "G7 - Hydrogen and fuel cells",
        x = "Year",
        y = "2022 USD",
-       color = "Country")
+       color = "Country")  +
+  theme(axis.title = element_text(size = 7), title = element_text(size=7))
 
 combined_plot_hydro <- plot1hydro + plot2hydro + plot_layout(guides = "collect")&
   theme(legend.position = "none")
@@ -683,14 +693,16 @@ plot1crosscut<-ggplot(filtered_data_G7_othercrosscutting, aes(x = Year, y = Valu
   labs(title = "G7 - Other cross-cutting technologies/research",
        x = "Year",
        y = "%o of GDP",
-       color = "Country")
+       color = "Country")  +
+  theme(axis.title = element_text(size = 7), title = element_text(size=7))
 
 plot2crosscut<-ggplot(filtered_data_G7_othercrosscutting, aes(x = Year, y = Value, group=Country, color=Country)) +
   geom_line() +
   labs(title = "G7 - Other cross-cutting technologies/research",
        x = "Year",
        y = "2022 USD",
-       color = "Country")
+       color = "Country")  +
+  theme(axis.title = element_text(size = 7), title = element_text(size=7))
 
 combined_plot_crosscut <- plot1crosscut + plot2crosscut + plot_layout(guides = "collect")&
   theme(legend.position = "none")
@@ -709,14 +721,16 @@ plot1pow<-ggplot(filtered_data_G7_Powerandstorage, aes(x = Year, y = Value_norma
   labs(title = "G7 - Other power and storage technologies",
        x = "Year",
        y = "%o of GDP",
-       color = "Country")
+       color = "Country")  +
+  theme(axis.title = element_text(size = 7), title = element_text(size=7))
 
 plot2pow<-ggplot(filtered_data_G7_Powerandstorage, aes(x = Year, y = Value, group=Country, color=Country)) +
   geom_line() +
   labs(title = "G7 - Other power and storage technologies",
        x = "Year",
        y = "2022 USD",
-       color = "Country")
+       color = "Country")  +
+  theme(axis.title = element_text(size = 7), title = element_text(size=7))
 
 combined_plot_pow <- plot1pow + plot2pow + plot_layout(guides = "collect")&
   theme(legend.position = "none")
@@ -735,17 +749,19 @@ plot1tot<-ggplot(filtered_data_G7_totalbudget, aes(x = Year, y = Value_normalize
   labs(title = "G7 - Total Budget",
        x = "Year",
        y = "%o of GDP",
-       color = "Country")
+       color = "Country")  +
+  theme(axis.title = element_text(size = 7), title = element_text(size=7))
 
 plot2tot<-ggplot(filtered_data_G7_totalbudget, aes(x = Year, y = Value, group=Country, color=Country)) +
   geom_line() +
   labs(title = "G7 - Total Budget",
        x = "Year",
        y = "2022 USD",
-       color = "Country")
+       color = "Country")  +
+  theme(axis.title = element_text(size = 7), title = element_text(size=7))
 
 combined_plot_tot <- plot1tot + plot2tot + plot_layout(guides = "collect")&
-  theme(legend.position = "bottom")
+  theme(legend.position = "bottom", legend.key.size = unit(0.2, "cm"), legend.title = element_text(8))
 #combined_plot_tot
 ```
 
@@ -753,8 +769,14 @@ combined_plot_tot <- plot1tot + plot2tot + plot_layout(guides = "collect")&
 #| echo: false
 #| message: false
 #| warning: false
-all_combined <- combined_plot_nuke / combined_plot_renewables / combined_plot_nrgeff / combined_plot_foss
-all_combined2 <- combined_plot_hydro / combined_plot_crosscut / combined_plot_pow / combined_plot_tot
+
+heights <- c(2, 2, 2, 2)
+heights2 <- c(2, 2, 2, 2)
+
+all_combined <- combined_plot_nuke / combined_plot_renewables / combined_plot_nrgeff / combined_plot_foss +
+  plot_layout(heights = heights)
+all_combined2 <- combined_plot_hydro / combined_plot_crosscut / combined_plot_pow / combined_plot_tot  +
+  plot_layout(heights = heights2)
 all_combined
 all_combined2
 ```
