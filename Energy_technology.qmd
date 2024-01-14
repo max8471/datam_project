@@ -2,11 +2,12 @@
 title: "Analysis of the trends in RD&D spending by energy technology (1974-2022)"
 format:
   wordcount-html: default
+  pdf: default
 author: "Disem Sula, Maximilien de La Ruelle"
 editor: visual
 warning: false
 editor_options: 
-  chunk_output_type: inline
+  chunk_output_type: console
 ---
 
 ```{r message=FALSE}
@@ -32,63 +33,19 @@ gdp<-vroom(here("WorldBank_GDP_data.csv"))
 
 ```
 
-### Link to the github repository of this project
+### Link to the github repository of this project {.appendix}
 
 [Github repository](https://github.com/max8471/datam_project)
 
-### Sources for the data
+### Sources for the data {.appendix}
 
 For the energy RD&D spending data : The data set is available [here](https://www.iea.org/data-and-statistics/data-product/energy-technology-rd-and-d-budget-database-2#overview) and download it by clicking on "selected data". Delete every sheet of the excel file except "public spending", and delete the first line of this sheet in order to have the years on the top row, then save it as a .csv file.
 
 For the GDP data : Go to this [link](https://databank.worldbank.org/reports.aspx?source=2&series=NY.GDP.MKTP.CD&country#) and select years 1974-2022, then download the data as a .csv file.
 
-### Description of the sources
 
-#### International Energy agency
 
-The International Energy Agency (IEA) is a pivotal organization founded in 1974 within the framework of the Organization for Economic Co-operation and Development (OECD). Comprising major energy consumers and producers globally, the IEA serves to enhance energy security, foster economic growth, and promote environmental sustainability. Its primary functions encompass collecting and analyzing energy data, conducting in-depth studies, and offering policy advice to member countries. The IEA also plays a critical role in coordinating emergency responses during energy supply disruptions.
-
-Key to its mission is advocating for energy efficiency, renewable energy sources, and clean technologies, addressing the challenges of climate change. Through initiatives like the World Energy Outlook reports, the IEA provides comprehensive insights into global energy trends, projections, and policy scenarios. In recent years, the IEA has garnered attention for its commitment to advancing clean energy transitions and contributing to global climate goals. Through collaboration with governments, industries, and international organizations, the IEA actively works towards shaping a sustainable and secure energy future on a global scale.
-
-#### World Bank
-
-The World Bank, established in 1944, stands as a prominent international financial institution dedicated to supporting the development endeavors of nations worldwide. Its fundamental mission revolves around alleviating poverty and promoting sustainable economic development. Comprising two main institutions, the International Bank for Reconstruction and Development (IBRD) and the International Development Association (IDA), the World Bank provides financial assistance in the form of loans, grants, and expert guidance.
-
-The World Bank engages in projects spanning various sectors, including education, health, infrastructure, agriculture, and energy, with a focus on fostering economic growth, reducing inequality, and improving living conditions. In the realm of energy, the World Bank plays a crucial role in financing and implementing projects that enhance access to energy in developing countries, promote renewable energy sources, and improve energy efficiency. Emphasizing sustainable development, environmental protection, and social inclusion, the World Bank's contributions extend beyond financial assistance to actively shaping a more equitable and sustainable global future through comprehensive development initiatives.
-
-### Information about the initial data files
-
-#### IEA data
-
-```{r}
-#| message: false
-#| echo: false
-n_rows_IEA=nrow(df)
-n_cols_IEA=ncol(df)
-col_names_IEA <- colnames(df)
-country_names_IEA <- sapply(unique(df$Country), function(x) iconv(x, "latin1", "UTF-8"))
-basic_info_IEA <- data.frame(
-  Description = c("Number of Rows", "Number of Columns", "Column Names", "Countries"),
-  Value = c(n_rows_IEA, n_cols_IEA, paste(col_names_IEA, collapse=", "), paste(country_names_IEA, collapse = ", ")))
-kable(basic_info_IEA)
-```
-
-#### GDP data
-
-```{r}
-#| message: false
-#| echo: false
-col_names_GDP <- colnames(gdp)
-n_rows_GDP=nrow(gdp)
-n_cols_GDP=ncol(gdp)
-country_names_GDP=unique(gdp$`Country Name`)
-basic_info_GDP <- data.frame(
-  Description = c("Number of Rows", "Number of Columns", "Column Names", "Countries"),
-  Value = c(n_rows_GDP, n_cols_GDP, paste(col_names_GDP, collapse = ", "), paste(country_names_GDP, collapse = ", ")))
-kable(basic_info_GDP)
-```
-
-### Filtering the data (IEA)
+### Filtering the data (IEA) {.appendix}
 
 **Currency Standardization:** All monetary values in the dataset were set to USD using 2022 prices and PPP for uniformity.
 
@@ -115,7 +72,7 @@ filtered_df <- filtered_df[, -ncol(filtered_df)]
 filtered_df <- subset(filtered_df, select = -Currency)
 ```
 
-### Processing the GDP data to make it correctly mergeable with the IEA one
+### Processing the GDP data to make it correctly mergeable with the IEA one {.appendix}
 
 **Column Naming Standardization:** Only the year information was retained in the column names for GDP
 
@@ -189,7 +146,7 @@ filtered_gdp <- filtered_gdp |>
   mutate(across(matches("^[12]"), ~./1000000))
 ```
 
-### Merging the two datasets
+### Merging the two datasets {.appendix}
 
 **Integration of GDP as a Technology:** A new row was added for each country, treating GDP as a technological variable for comprehensive analysis.
 
@@ -243,7 +200,7 @@ reshaped_IEA_Europe <- filtered_data_IEA_Europe |>
 
 reshaped_IEA_Europe$Year <- as.numeric(reshaped_IEA_Europe$Year)
 
-ggplot(reshaped_IEA_Europe, aes(x = Year, y = Value, color = Technology)) +
+plot_Europe <- ggplot(reshaped_IEA_Europe, aes(x = Year, y = Value, color = Technology)) +
   geom_line() +
     scale_color_manual(values = c("Renewables" = "darkgreen", "Fossil fuels" = "brown", "Nuclear" = "purple"))+
   labs(title = "Europe - Temporal Trends in Energy RD&D Spending (1974-2022)",
@@ -259,7 +216,7 @@ reshaped_IEA_Asia_Oceania <- filtered_data_IEA_Asia_Oceania |>
 
 reshaped_IEA_Asia_Oceania$Year <- as.numeric(reshaped_IEA_Asia_Oceania$Year)
 
-ggplot(reshaped_IEA_Asia_Oceania, aes(x = Year, y = Value, color = Technology)) +
+plot_Asia_Oceania <- ggplot(reshaped_IEA_Asia_Oceania, aes(x = Year, y = Value, color = Technology)) +
   geom_line() +
     scale_color_manual(values = c("Renewables" = "darkgreen", "Fossil fuels" = "brown", "Nuclear" = "purple"))+
   labs(title = "Asia and Oceania - Temporal Trends in Energy RD&D Spending (1974-2022)",
@@ -274,14 +231,64 @@ reshaped_IEA_Americas <- filtered_data_IEA_Americas |>
 
 reshaped_IEA_Americas$Year <- as.numeric(reshaped_IEA_Americas$Year)
 
-ggplot(reshaped_IEA_Americas, aes(x = Year, y = Value, color = Technology)) +
+plot_Americas <- ggplot(reshaped_IEA_Americas, aes(x = Year, y = Value, color = Technology)) +
   geom_line() +
   scale_color_manual(values = c("Renewables" = "darkgreen", "Fossil fuels" = "brown", "Nuclear" = "purple"))+
   labs(title = "Americas - Temporal Trends in Energy RD&D Spending (1974-2022)",
        x = "Year",
        y = "Millions of 2022 USD",
        color = "Technology")
+
+combined_plots <- plot_Europe / plot_Asia_Oceania / plot_Americas
+combined_plots
 ```
+
+### Description of the sources
+
+#### International Energy agency
+
+The International Energy Agency (IEA) is a pivotal organization founded in 1974 within the framework of the Organization for Economic Co-operation and Development (OECD). Comprising major energy consumers and producers globally, the IEA serves to enhance energy security, foster economic growth, and promote environmental sustainability. Its primary functions encompass collecting and analyzing energy data, conducting in-depth studies, and offering policy advice to member countries. The IEA also plays a critical role in coordinating emergency responses during energy supply disruptions.
+
+Key to its mission is advocating for energy efficiency, renewable energy sources, and clean technologies, addressing the challenges of climate change. Through initiatives like the World Energy Outlook reports, the IEA provides comprehensive insights into global energy trends, projections, and policy scenarios. In recent years, the IEA has garnered attention for its commitment to advancing clean energy transitions and contributing to global climate goals. Through collaboration with governments, industries, and international organizations, the IEA actively works towards shaping a sustainable and secure energy future on a global scale.
+
+#### Information about the initial IEA data file
+```{r}
+#| message: false
+#| echo: false
+n_rows_IEA=nrow(df)
+n_cols_IEA=ncol(df)
+col_names_IEA <- colnames(df)
+country_names_IEA <- sapply(unique(df$Country), function(x) iconv(x, "latin1", "UTF-8"))
+basic_info_IEA <- data.frame(
+  Description = c("Number of Rows", "Number of Columns", "Column Names", "Countries"),
+  Value = c(n_rows_IEA, n_cols_IEA, paste(col_names_IEA, collapse=", "), paste(country_names_IEA, collapse = ", ")))
+kable(basic_info_IEA)
+```
+
+#### World Bank
+
+The World Bank, established in 1944, stands as a prominent international financial institution dedicated to supporting the development endeavors of nations worldwide. Its fundamental mission revolves around alleviating poverty and promoting sustainable economic development. Comprising two main institutions, the International Bank for Reconstruction and Development (IBRD) and the International Development Association (IDA), the World Bank provides financial assistance in the form of loans, grants, and expert guidance.
+
+The World Bank engages in projects spanning various sectors, including education, health, infrastructure, agriculture, and energy, with a focus on fostering economic growth, reducing inequality, and improving living conditions. In the realm of energy, the World Bank plays a crucial role in financing and implementing projects that enhance access to energy in developing countries, promote renewable energy sources, and improve energy efficiency. Emphasizing sustainable development, environmental protection, and social inclusion, the World Bank's contributions extend beyond financial assistance to actively shaping a more equitable and sustainable global future through comprehensive development initiatives.
+
+#### Information about the initial GDP data
+
+```{r}
+#| message: false
+#| echo: false
+col_names_GDP <- colnames(gdp)
+n_rows_GDP=nrow(gdp)
+n_cols_GDP=ncol(gdp)
+country_names_GDP=unique(gdp$`Country Name`)
+basic_info_GDP <- data.frame(
+  Description = c("Number of Rows", "Number of Columns", "Column Names", "Countries"),
+  Value = c(n_rows_GDP, n_cols_GDP, paste(col_names_GDP, collapse = ", "), paste(country_names_GDP, collapse = ", ")))
+kable(basic_info_GDP)
+```
+
+## Analyzing the Correlation Between GDP and Public RD&D Spending
+In our initial exploration, we sought to understand the relationship between a country's Gross Domestic Product (GDP) and the funds allocated to public Research, Development, and Deployment (RD&D) in the energy sector. We hypothesized that these two variables might exhibit a correlation, indicative of the economic commitment to energy-related research.
+To investigate this, we performed a series of linear regressions for each year spanning 1974 to 2022, computing the R-squared values as a measure of the goodness of fit for the linear model. The R-squared values represent the proportion of the variation in the Total Budget (public RD&D spending) that can be explained by changes in GDP.
 
 ```{r}
 #| echo: false
@@ -297,10 +304,6 @@ reshaped_df <- combined_df |>
 
 reshaped_df$Year <- as.numeric(reshaped_df$Year)
 ```
-
-## Analyzing the Correlation Between GDP and Public RD&D Spending
-In our initial exploration, we sought to understand the relationship between a country's Gross Domestic Product (GDP) and the funds allocated to public Research, Development, and Deployment (RD&D) in the energy sector. We hypothesized that these two variables might exhibit a correlation, indicative of the economic commitment to energy-related research.
-To investigate this, we performed a series of linear regressions for each year spanning 1974 to 2022, computing the R-squared values as a measure of the goodness of fit for the linear model. The R-squared values represent the proportion of the variation in the Total Budget (public RD&D spending) that can be explained by changes in GDP.
 
 ```{r}
 #| echo: false
@@ -412,7 +415,7 @@ ggplot(coefficients_results, aes(x = Year, y = Coefficient)) +
 ```
 The graph can be interpreted as following : In 1990, countries were spending, on average, .1% of their GDP in energy RD&D. In other words, an increase of 1000$ of the GDP implies that there is an additional dollar spent on energy RD&D.
 This observation thus suggests a dynamic interplay between economic factors and government investments in energy-related research over the decades.
-Indeed, we see that this proportion is growing very fast until 1980, reaching .45%, before drastically diminishing to .05% around 1995. Since then, the levels are quite constant.
+Indeed, we see that this proportion is growing very fast from 1974 until 1980, reaching .45%, before drastically diminishing to .05% around 1995. Since then, the levels are quite constant.
 It should be noted that the high rise in 2009 is mostly due to the recession caused by the financial crisis (a decrease in the GDP mechanically leads to an increase of the total budget when expressed as a percentage).
 
 
@@ -540,9 +543,6 @@ This normalization allows us to focus on shared patterns, providing a more accur
 We now present a series of graphs comparing public Research, Development, and Deployment (RD&D) spending across G7 countries in different technologies. These visualizations showcase spending expressed both as a permillage of the Gross Domestic Product (GDP) and in 2022 USD. The fact that for every technology, the countries are evolving together much more on the left graph than on the right graph underscores the efficiency of our spending normalization.
 
 
-
-
-
 ```{r}
 #| echo: false
 #| message: false
@@ -563,9 +563,9 @@ plot2nuke<-ggplot(filtered_data_G7_nuclear, aes(x = Year, y = Value, group=Count
        x = "Year",
        y = "2022 USD",
        color = "Country")
-combined_plot_nuke <- plot1nuke + plot2nuke + plot_layout(guides = "collect")&
-  theme(legend.position = "top")
-combined_plot_nuke
+combined_plot_nuke <- plot1nuke + plot2nuke  + plot_layout(guides = "collect")&
+  theme(legend.position = "none")
+#combined_plot_nuke
 ```
 
 ```{r}
@@ -590,7 +590,7 @@ plot2renew<-ggplot(filtered_data_G7_renewables, aes(x = Year, y = Value, group=C
        color = "Country")
 combined_plot_renewables <- plot1renew + plot2renew + plot_layout(guides = "collect")&
   theme(legend.position = "none")
-combined_plot_renewables
+#combined_plot_renewables
 ```
 
 ```{r}
@@ -616,7 +616,7 @@ plot2nrgeff<-ggplot(filtered_data_G7_energyefficiency, aes(x = Year, y = Value, 
 
 combined_plot_nrgeff <- plot1nrgeff + plot2nrgeff + plot_layout(guides = "collect")&
   theme(legend.position = "none")
-combined_plot_nrgeff
+#combined_plot_nrgeff
 ```
 
 ```{r}
@@ -642,7 +642,7 @@ plot2foss<-ggplot(filtered_data_G7_fossilfuels, aes(x = Year, y = Value, group=C
 
 combined_plot_foss <- plot1foss + plot2foss + plot_layout(guides = "collect")&
   theme(legend.position = "none")
-combined_plot_foss
+#combined_plot_foss
 ```
 
 ```{r}
@@ -668,7 +668,7 @@ plot2hydro<-ggplot(filtered_data_G7_Hydrogen, aes(x = Year, y = Value, group=Cou
 
 combined_plot_hydro <- plot1hydro + plot2hydro + plot_layout(guides = "collect")&
   theme(legend.position = "none")
-combined_plot_hydro
+#combined_plot_hydro
 ```
 
 ```{r}
@@ -694,7 +694,7 @@ plot2crosscut<-ggplot(filtered_data_G7_othercrosscutting, aes(x = Year, y = Valu
 
 combined_plot_crosscut <- plot1crosscut + plot2crosscut + plot_layout(guides = "collect")&
   theme(legend.position = "none")
-combined_plot_crosscut
+#combined_plot_crosscut
 ```
 
 ```{r}
@@ -720,7 +720,7 @@ plot2pow<-ggplot(filtered_data_G7_Powerandstorage, aes(x = Year, y = Value, grou
 
 combined_plot_pow <- plot1pow + plot2pow + plot_layout(guides = "collect")&
   theme(legend.position = "none")
-combined_plot_pow
+#combined_plot_pow
 ```
 
 ```{r}
@@ -745,9 +745,20 @@ plot2tot<-ggplot(filtered_data_G7_totalbudget, aes(x = Year, y = Value, group=Co
        color = "Country")
 
 combined_plot_tot <- plot1tot + plot2tot + plot_layout(guides = "collect")&
-  theme(legend.position = "none")
-combined_plot_tot
+  theme(legend.position = "bottom")
+#combined_plot_tot
 ```
+
+```{r}
+#| echo: false
+#| message: false
+#| warning: false
+all_combined <- combined_plot_nuke / combined_plot_renewables / combined_plot_nrgeff / combined_plot_foss
+all_combined2 <- combined_plot_hydro / combined_plot_crosscut / combined_plot_pow / combined_plot_tot
+all_combined
+all_combined2
+```
+
 
 The similarities from one country to another will allow us to analyze the trends in spending at the G7 level while staying relevant, and the conclusions made will mostly be true at the country level too.
 
@@ -790,22 +801,7 @@ combined_plot_g7tech
 
 ## Evolving Landscape of RD&D Spending: G7 Perspective
 
-**Key Observations:**
-
-- *Nuclear Energy Decline:*
-There is a significant decline in the percentage of RD&D investment in nuclear energy technology. In 1974, nuclear spending accounted for approximately 74% of the total budget for energy technology RD&D. However, by 2022, this proportion had decreased to around 20%. This highlights a substantial shift in priorities away from nuclear technology within the G7 countries.
-
-- *Rise of Energy Efficiency:*
-Energy efficiency exhibits a consistent and remarkable upward trend in terms of percentage on the total budget. Starting at around 2% in 1974, it has steadily increased and reached almost 25% in 2022. This suggests a sustained commitment to improving energy efficiency and conservation efforts.
-
-- *Steady Fossil Fuel Allocation:*
-Fossil fuel RD&D spending has remained relatively steady over the years, with a slight decline. In the 1980s and 1990s, it accounted for around 14%, which reduced to an average of 7-8% in the 2016-2022 period. This indicates a steady but reduced emphasis on fossil fuel technologies within the G7 consortium.
-
-- *Emergence of Hydrogen and Fuel Cells:*
-Hydrogen and fuel cells technology, while starting from virtually 0% in the 1980s and 1990s, has seen an increase. It reached around 3-5% of the total budget in the 2016-2022 period, showcasing a growing interest in these technologies, albeit from a relatively small base. However, it is worth noting that France multiplied its hydrogen investment by 20 between 2021 and 2022, thus driving the rise at the G7 level. This means that conclusions should not be extended and applied to other G7 countries without further research.
-
-- *Rising Role of Renewables:*
-The percentage of spending on renewable energy technologies has experienced a substantial increase in the last two decades. Starting almost from 0% in 1974, it climbed to around 20% between 2008 and 2016, reflecting a heightened focus on sustainable and renewable energy solutions.
+In this final phase of our data exploration journey, we delve into the dynamic landscape of Research, Development, and Deployment (RD&D) spending across G7 countries. Our focus now shifts towards understanding how the percentage distribution of spending in each energy technology has evolved relative to the Total Budget over the last few decades. Through careful analysis and visualization, we aim to unveil pivotal insights into the changing priorities of G7 nations in the realm of energy technology innovation.
 
 ```{r}
 #| echo: false
@@ -828,3 +824,30 @@ ggplot(df_percent, aes(x = factor(YearGroup), y = Percentage, fill = Technology)
   theme_minimal() +
   theme(legend.position = "bottom")
 ```
+
+**Key Observations:**
+
+- *Nuclear Energy Decline:*
+There is a significant decline in the percentage of RD&D investment in nuclear energy technology. In 1974, nuclear spending accounted for approximately 74% of the total budget for energy technology RD&D. However, by 2022, this proportion had decreased to around 20%. This highlights a substantial shift in priorities away from nuclear technology within the G7 countries.
+
+- *Rise of Energy Efficiency:*
+Energy efficiency exhibits a consistent and remarkable upward trend in terms of percentage on the total budget. Starting at around 2% in 1974, it has steadily increased and reached almost 25% in 2022. This suggests a sustained commitment to improving energy efficiency and conservation efforts.
+
+- *Steady Fossil Fuel Allocation:*
+Fossil fuel RD&D spending has remained relatively steady over the years, with a slight decline. In the 1980s and 1990s, it accounted for around 14%, which reduced to an average of 7-8% in the 2016-2022 period. This indicates a steady but reduced emphasis on fossil fuel technologies within the G7 consortium.
+
+- *Emergence of Hydrogen and Fuel Cells:*
+Hydrogen and fuel cells technology, while starting from virtually 0% in the 1980s and 1990s, has seen an increase. It reached around 3-5% of the total budget in the 2016-2022 period, showcasing a growing interest in these technologies, albeit from a relatively small base. However, it is worth noting that France multiplied its hydrogen investment by 20 between 2021 and 2022, thus driving the rise at the G7 level. This means that conclusions should not be extended and applied to other G7 countries without further research.
+
+- *Rising Role of Renewables:*
+The percentage of spending on renewable energy technologies has experienced a substantial increase in the last two decades. Starting almost from 0% in 1974, it climbed to around 20% between 2008 and 2016, reflecting a heightened focus on sustainable and renewable energy solutions.
+
+# Conclusion
+Our journey spanning five decades of data analysis, exploration, and reflection has provided valuable insights into the complex interplay between economic development and energy technology evolution within the G7 consortium. Rooted in the quest to understand shifts in Research, Development, and Deployment (RD&D) spending, our exploration has unraveled key patterns, priorities, and correlations that define the trajectory of G7 nations.
+At its core, this investigation sought to answer a pivotal research question: "Has there been a discernible change in the energy technology landscape among G7 countries over the last 50 years, and how does this relate to the proportion of public RD&D spending in relation to their Gross Domestic Product (GDP)?" Through meticulous analysis and visualization, we've navigated through nuanced trends, highlighting the dynamic nature of G7 commitments to energy technology.
+Our journey commenced with an examination of the correlation between GDP and RD&D spending. The consistent and robust relationship underscored the link between economic prosperity and the allocation of resources to energy-related research. As we delved deeper into the G7 dynamics, our analyses unveiled a steady commitment to energy technology advancements, with occasional fluctuations marking broader economic and political shifts.
+Recognizing the need for comparability across countries, we normalized spending values as a permillage of GDP. This transformation facilitated a standardized approach, enabling a more accurate representation of shared trends among G7 nations.
+Our exploration of spending distribution across different energy technologies uncovers dynamic shifts in priorities. The decline in nuclear spending suggests a reassessment, potentially driven by safety concerns and a pursuit of sustainable alternatives. The ascent of energy efficiency reflects a shared commitment to mitigating environmental impact, while the rise of hydrogen and fuel cells hints at anticipation for future energy landscapes. The surge in renewable spending signifies a collective push towards greener, more sustainable energy solutions.
+As we conclude this exploration, the implications of our findings extend beyond the realm of data and analysis. The trends observed—whether in the decline of nuclear spending, the rise of energy efficiency, or the emergence of sustainable alternatives—resonate with global imperatives for environmental stewardship and sustainable development. These insights raise questions that demand further exploration and lay the groundwork for future discussions on policy shifts, collaborative efforts, and innovations.
+In conclusion, our findings transcend data points and graphs; they paint a narrative of resilience, adaptation, and collaborative strides made by G7 nations in the realm of energy technology. As we navigate the complexities of global imperatives for environmental stewardship and sustainable development, our insights serve as a reflection and a catalyst.
+Looking forward, our analysis propels ongoing discussions, decisions, and actions that will shape the future of energy landscapes. In navigating the evolving frontier of energy technology investments, this exploration is not just a conclusion but a continuation—a call to navigate the energy frontier with resilience, innovation, and a shared commitment to a sustainable future.
