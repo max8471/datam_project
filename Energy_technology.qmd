@@ -43,8 +43,6 @@ For the energy RD&D spending data : The data set is available [here](https://www
 
 For the GDP data : Go to this [link](https://databank.worldbank.org/reports.aspx?source=2&series=NY.GDP.MKTP.CD&country#) and select years 1974-2022, then download the data as a .csv file.
 
-
-
 ### Filtering the data (IEA) {.appendix}
 
 **Currency Standardization:** All monetary values in the dataset were set to USD using 2022 prices and PPP for uniformity.
@@ -252,6 +250,7 @@ The International Energy Agency (IEA) is a pivotal organization founded in 1974 
 Key to its mission is advocating for energy efficiency, renewable energy sources, and clean technologies, addressing the challenges of climate change. Through initiatives like the World Energy Outlook reports, the IEA provides comprehensive insights into global energy trends, projections, and policy scenarios. In recent years, the IEA has garnered attention for its commitment to advancing clean energy transitions and contributing to global climate goals. Through collaboration with governments, industries, and international organizations, the IEA actively works towards shaping a sustainable and secure energy future on a global scale.
 
 #### Information about the initial IEA data file
+
 ```{r}
 #| message: false
 #| echo: false
@@ -287,8 +286,8 @@ kable(basic_info_GDP)
 ```
 
 ## Analyzing the Correlation Between GDP and Public RD&D Spending
-In our initial exploration, we sought to understand the relationship between a country's Gross Domestic Product (GDP) and the funds allocated to public Research, Development, and Deployment (RD&D) in the energy sector. We hypothesized that these two variables might exhibit a correlation, indicative of the economic commitment to energy-related research.
-To investigate this, we performed a series of linear regressions for each year spanning 1974 to 2022, computing the R-squared values as a measure of the goodness of fit for the linear model. The R-squared values represent the proportion of the variation in the Total Budget (public RD&D spending) that can be explained by changes in GDP.
+
+In our initial exploration, we sought to understand the relationship between a country's Gross Domestic Product (GDP) and the funds allocated to public Research, Development, and Deployment (RD&D) in the energy sector. We hypothesized that these two variables might exhibit a correlation, indicative of the economic commitment to energy-related research. To investigate this, we performed a series of linear regressions for each year spanning 1974 to 2022, computing the R-squared values as a measure of the goodness of fit for the linear model. The R-squared values represent the proportion of the variation in the Total Budget (public RD&D spending) that can be explained by changes in GDP.
 
 ```{r}
 #| echo: false
@@ -360,10 +359,10 @@ ggplot(r_squared_results, aes(x = Year, y = R_squared)) +
        y = "R-squared")
 
 ```
-Our findings, visualized in the graph titled "R-squared values over the years 1974-2022," revealed a consistent and significant correlation between GDP and Total Budget. The R-squared values have a mean of `r round(mean(r_squared_results$R_squared),digits=2)*100`%
-and consistently exceeds `r round(min(r_squared_results$R_squared),digits=2)*100`%, indicating a substantial portion of the variability in public RD&D spending can be attributed to changes in GDP.
 
-After establishing the consistent correlation between Gross Domestic Product (GDP) and Total Budget (public RD&D spending) across the years, we further investigated the dynamics at the extremes—1980 and 2002—by pinpointing the regression for the highest and the lowest R-squared values.
+Our findings, visualized in the graph titled "R-squared values over the years 1974-2022," revealed a consistent and significant correlation between GDP and Total Budget. The R-squared values have a mean of `r round(mean(r_squared_results$R_squared),digits=2)*100`% and consistently exceeds `r round(min(r_squared_results$R_squared),digits=2)*100`%, indicating a substantial portion of the variability in public RD&D spending can be attributed to changes in GDP.
+
+After establishing the consistent correlation between Gross Domestic Product (GDP) and Total Budget (public RD&D spending) across the years, we further investigated the dynamics at the extremes---1980 and 2002---by pinpointing the regression for the highest and the lowest R-squared values.
 
 ```{r}
 #| echo: false
@@ -399,8 +398,8 @@ ggplot(df2002, aes(x = GDP, y = `Total Budget`)) +
        y = "Total Budget")
 ```
 
-The upward-sloping line indicates a positive relationship between GDP and public RD&D spending. In this era, countries with higher GDP tended to allocate a larger budget to energy-related research.
-But this snapshot doesn't give an exhaustive view of how this positive relationship between GDP and public RD&D spending evolved over the time. To do so, you will find below the evolution of the coefficient of the GDP in the regression.
+The upward-sloping line indicates a positive relationship between GDP and public RD&D spending. In this era, countries with higher GDP tended to allocate a larger budget to energy-related research. But this snapshot doesn't give an exhaustive view of how this positive relationship between GDP and public RD&D spending evolved over the time. To do so, you will find below the evolution of the coefficient of the GDP in the regression.
+
 ```{r}
 #| echo: false
 #| message: false
@@ -411,11 +410,8 @@ ggplot(coefficients_results, aes(x = Year, y = Coefficient)) +
        x = "Year",
        y = "Coefficient")
 ```
-The graph can be interpreted as following : In 1990, countries were spending, on average, .1% of their GDP in energy RD&D. In other words, an increase of 1000$ of the GDP implies that there is an additional dollar spent on energy RD&D.
-This observation thus suggests a dynamic interplay between economic factors and government investments in energy-related research over the decades.
-Indeed, we see that this proportion is growing very fast from 1974 until 1980, reaching .45%, before drastically diminishing to .05% around 1995. Since then, the levels are quite constant.
-It should be noted that the high rise in 2009 is mostly due to the recession caused by the financial crisis (a decrease in the GDP mechanically leads to an increase of the total budget when expressed as a percentage).
 
+The graph can be interpreted as following : In 1990, countries were spending, on average, .1% of their GDP in energy RD&D. In other words, an increase of 1000\$ of the GDP implies that there is an additional dollar spent on energy RD&D. This observation thus suggests a dynamic interplay between economic factors and government investments in energy-related research over the decades. Indeed, we see that this proportion is growing very fast from 1974 until 1980, reaching .45%, before drastically diminishing to .05% around 1995. Since then, the levels are quite constant. It should be noted that the high rise in 2009 is mostly due to the recession caused by the financial crisis (a decrease in the GDP mechanically leads to an increase of the total budget when expressed as a percentage).
 
 # Examining G7 Countries: Evolution of RD&D Spending and GDP Relationship
 
@@ -427,7 +423,6 @@ g7_summary_df0 <- reshaped_df %>%
   group_by(Year, Technology) %>%
   summarise(Spending = sum(ifelse(is.na(Value), 0, Value)), .groups = "drop")
 ```
-
 
 Focusing our lens on the Group of Seven (G7) countries, we narrowed our analysis to key technologies, investigating how G7 countries allocated their resources to foster advancements in energy technologies. This detailed analysis will provide a more granular understanding of the technological trajectories that accompanied the observed financial dynamics.
 
@@ -470,8 +465,7 @@ G7_normalized <- g7_summary_df0 %>%
 
 ## Normalizing Spending: Unveiling G7 Similarities
 
-Recognizing the need to address potential distortions in our analysis caused by variations in the Gross Domestic Product (GDP) across G7 countries, we decided to normalize our spending values. The need of such a transformation is highlighted by the correlation between the two variables. This normalization was achieved by expressing the spending figures as permillages of the GDP, providing a more standardized measure and enabling a comparative analysis that considers each country's economic context.
-To prove that this transformation was useful, we have conducted the same analysis on the R-squared than before, but now expressing the Total budget as a percentage of the GDP.
+Recognizing the need to address potential distortions in our analysis caused by variations in the Gross Domestic Product (GDP) across G7 countries, we decided to normalize our spending values. The need of such a transformation is highlighted by the correlation between the two variables. This normalization was achieved by expressing the spending figures as permillages of the GDP, providing a more standardized measure and enabling a comparative analysis that considers each country's economic context. To prove that this transformation was useful, we have conducted the same analysis on the R-squared than before, but now expressing the Total budget as a percentage of the GDP.
 
 ```{r}
 #| echo: false
@@ -516,7 +510,6 @@ for (year in 1974:2022) {
 }
 ```
 
-
 ```{r}
 #| echo: false
 #| message: false
@@ -532,14 +525,12 @@ ggplot(merged_rsquared, aes(x = Year)) +
        y = "R-squared")+
   theme(legend.position="none")
 ```
-In blue, those are the post-normalization R-squared values (and pre-normalization in red for comparison purposes).
-The values are now really low, being mostly very close to 0 despite a few higher values around 1980.
-In addition of confirming that the transformation was useful, this tells us that since 2000, the size of an economy doesn't affect the proportion of its resources a government is willing to spend in energy RD&D.
+
+In blue, those are the post-normalization R-squared values (and pre-normalization in red for comparison purposes). The values are now really low, being mostly very close to 0 despite a few higher values around 1980. In addition of confirming that the transformation was useful, this tells us that since 2000, the size of an economy doesn't affect the proportion of its resources a government is willing to spend in energy RD&D.
 
 This normalization allows us to focus on shared patterns, providing a more accurate representation of the group's collaborative efforts in public RD&D spending. As we move forward, this standardized approach will enhance our ability to discern collective trends in energy technology evolution within the G7, shedding light on the collaborative strides made by these economically influential nations.
 
 We now present a series of graphs comparing public Research, Development, and Deployment (RD&D) spending across G7 countries in different technologies. These visualizations showcase spending expressed both as a permillage of the Gross Domestic Product (GDP) and in 2022 USD. The fact that for every technology, the countries are evolving together much more on the left graph than on the right graph underscores the efficiency of our spending normalization.
-
 
 ```{r}
 #| echo: false
@@ -781,7 +772,6 @@ all_combined
 all_combined2
 ```
 
-
 The similarities from one country to another will allow us to analyze the trends in spending at the G7 level while staying relevant, and the conclusions made will mostly be true at the country level too.
 
 ## Analyzing G7 Spending Trends in Energy Technologies
@@ -849,26 +839,20 @@ ggplot(df_percent, aes(x = factor(YearGroup), y = Percentage, fill = Technology)
 
 **Key Observations:**
 
-- *Nuclear Energy Decline:*
-There is a significant decline in the percentage of RD&D investment in nuclear energy technology. In 1974, nuclear spending accounted for approximately 74% of the total budget for energy technology RD&D. However, by 2022, this proportion had decreased to around 20%. This highlights a substantial shift in priorities away from nuclear technology within the G7 countries.
+-   *Nuclear Energy Decline:* There is a significant decline in the percentage of RD&D investment in nuclear energy technology. In 1974, nuclear spending accounted for approximately 74% of the total budget for energy technology RD&D. However, by 2022, this proportion had decreased to around 20%. This highlights a substantial shift in priorities away from nuclear technology within the G7 countries.
 
-- *Rise of Energy Efficiency:*
-Energy efficiency exhibits a consistent and remarkable upward trend in terms of percentage on the total budget. Starting at around 2% in 1974, it has steadily increased and reached almost 25% in 2022. This suggests a sustained commitment to improving energy efficiency and conservation efforts.
+-   *Rise of Energy Efficiency:* Energy efficiency exhibits a consistent and remarkable upward trend in terms of percentage on the total budget. Starting at around 2% in 1974, it has steadily increased and reached almost 25% in 2022. This suggests a sustained commitment to improving energy efficiency and conservation efforts.
 
-- *Steady Fossil Fuel Allocation:*
-Fossil fuel RD&D spending has remained relatively steady over the years, with a slight decline. In the 1980s and 1990s, it accounted for around 14%, which reduced to an average of 7-8% in the 2016-2022 period. This indicates a steady but reduced emphasis on fossil fuel technologies within the G7 consortium.
+-   *Steady Fossil Fuel Allocation:* Fossil fuel RD&D spending has remained relatively steady over the years, with a slight decline. In the 1980s and 1990s, it accounted for around 14%, which reduced to an average of 7-8% in the 2016-2022 period. This indicates a steady but reduced emphasis on fossil fuel technologies within the G7 consortium.
 
-- *Emergence of Hydrogen and Fuel Cells:*
-Hydrogen and fuel cells technology, while starting from virtually 0% in the 1980s and 1990s, has seen an increase. It reached around 3-5% of the total budget in the 2016-2022 period, showcasing a growing interest in these technologies, albeit from a relatively small base. However, it is worth noting that France multiplied its hydrogen investment by 20 between 2021 and 2022, thus driving the rise at the G7 level. This means that conclusions should not be extended and applied to other G7 countries without further research.
+-   *Emergence of Hydrogen and Fuel Cells:* Hydrogen and fuel cells technology, while starting from virtually 0% in the 1980s and 1990s, has seen an increase. It reached around 3-5% of the total budget in the 2016-2022 period, showcasing a growing interest in these technologies, albeit from a relatively small base. However, it is worth noting that France multiplied its hydrogen investment by 20 between 2021 and 2022, thus driving the rise at the G7 level. This means that conclusions should not be extended and applied to other G7 countries without further research.
 
-- *Rising Role of Renewables:*
-The percentage of spending on renewable energy technologies has experienced a substantial increase in the last two decades. Starting almost from 0% in 1974, it climbed to around 20% between 2008 and 2016, reflecting a heightened focus on sustainable and renewable energy solutions.
+-   *Rising Role of Renewables:* The percentage of spending on renewable energy technologies has experienced a substantial increase in the last two decades. Starting almost from 0% in 1974, it climbed to around 20% between 2008 and 2016, reflecting a heightened focus on sustainable and renewable energy solutions.
 
 # Conclusion
 
 We've delved into data analysis to gain valuable insights into how economic development and energy technology have evolved among the G7 nations over the past five decades. Our main focus was understanding changes in Research, Development, and Deployment (RD&D) spending and its connection to Gross Domestic Product (GDP). Our investigation aimed to answer a key question: "Have G7 countries experienced noticeable shifts in their energy technology landscape over the last 50 years, and how does this relate to the proportion of public RD&D spending in relation to their GDP?"
 
-We began by examining the correlation between GDP and RD&D spending, finding a consistent and robust relationship highlighting the link between economic prosperity and investment in energy-related research. Further exploration revealed a steady commitment to energy technology advancements, with occasional fluctuations aligning with broader economic and political changes.
-To ensure comparability across countries, we normalized spending values as a percentage of GDP, facilitating a standardized approach for a more accurate representation of shared trends.
+We began by examining the correlation between GDP and RD&D spending, finding a consistent and robust relationship highlighting the link between economic prosperity and investment in energy-related research. Further exploration revealed a steady commitment to energy technology advancements, with occasional fluctuations aligning with broader economic and political changes. To ensure comparability across countries, we normalized spending values as a percentage of GDP, facilitating a standardized approach for a more accurate representation of shared trends.
 
 Our examination of spending distribution across different energy technologies revealed dynamic shifts in priorities. The decline in nuclear spending suggested a reevaluation, potentially influenced by safety concerns and a pursuit for other sustainable alternatives. The emphasis on energy efficiency indicated a collective commitment to reducing environmental impact, while increased investment in hydrogen and fuel cells hinted at anticipation for future energy landscapes. The uptick in renewable spending showcased a joint effort towards greener, more sustainable energy solutions.
